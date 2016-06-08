@@ -101,6 +101,11 @@
 #include "mbedtls/md.h"
 #endif
 
+#if defined(MBEDTLS_MILAGRO_CS_C) || \
+defined(MBEDTLS_MILAGRO_P2P_C)
+#include "mbedtls/milagro.h"
+#endif
+
 #if defined(MBEDTLS_NET_C)
 #include "mbedtls/net.h"
 #endif
@@ -238,6 +243,33 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
             mbedtls_snprintf( buf, buflen, "MD - Opening or reading of file failed" );
 #endif /* MBEDTLS_MD_C */
 
+#if defined(MBEDTLS_MILAGRO_CS_C) || defined(MBEDTLS_MILAGRO_P2P_C)
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_CS_AUTHENTICATION_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_CS - The server has failed authenticating the client." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_CS_SRV_PUB_PARAM_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_CS - The server has failed computing the public parameter." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_CS_CLI_PUB_PARAM_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_CS - The client has failed computing the public parameter." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_CS_READ_PARAM_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_CS - The client/server has failed reading a public parameter." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_CS_WRITE_PARAM_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_CS - Failed while writing the parameters." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_CS_KEY_COMPUTATOIN_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_CS - The client/server has failed computing the premaster secret." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_P2P_READ_PARAM_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_P2P - The client/server has failed reading the parameters." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_P2P_PARAMETERS_COMPUTATOIN_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_P2P - The client/server has failed computing the parameters." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_P2P_MSECRET_COMPUTATOIN_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_P2P - The client/server has failed computing the premaster secret." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_P2P_WRITE_PARAM_FAILED) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO_P2P - Failed while writing the parameters." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_BAD_INPUT) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO - Input function non valid." );
+        if( use_ret == -(MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS) )
+            mbedtls_snprintf( buf, buflen, "MILAGRO - Invalid or missing initial parameters" );
+#endif
+        
 #if defined(MBEDTLS_PEM_PARSE_C) || defined(MBEDTLS_PEM_WRITE_C)
         if( use_ret == -(MBEDTLS_ERR_PEM_NO_HEADER_FOOTER_PRESENT) )
             mbedtls_snprintf( buf, buflen, "PEM - No PEM header or footer found" );
