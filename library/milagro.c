@@ -72,10 +72,6 @@ void mbedtls_milagro_free_octet(octet *to_be_freed)
 void mbedtls_milagro_cs_init( mbedtls_milagro_cs_context * milagro_cs)
 {
     memset(milagro_cs,0,sizeof(*milagro_cs));
-    
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    milagro_cs->date = mbedtls_milagro_cs_today();
-#endif
 }
 
 
@@ -101,14 +97,6 @@ int mbedtls_milagro_cs_setup_RNG( mbedtls_milagro_cs_context *milagro_cs, mbedtl
     return 0;
 }
 
-void mbedtls_milagro_cs_set_timepermit(mbedtls_milagro_cs_context *milagro_cs, char* timepermit, int len_timepermit)
-{
-    milagro_cs->time_permits.val = mbedtls_milagro_calloc(256);
-    memcpy(milagro_cs->time_permits.val, timepermit, len_timepermit);
-    milagro_cs->time_permits.max = len_timepermit;
-}
-
-
 
 void mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_cs, char * client_identity)
 {
@@ -121,7 +109,8 @@ void mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_
     milagro_cs->client_identity.max = (int)strlen(client_identity);
     mbedtls_milagro_cs_hash_id(&milagro_cs->client_identity,&milagro_cs->hash_client_id);
 }
-    
+
+
 void mbedtls_milagro_cs_set_secret(mbedtls_milagro_cs_context *milagro_cs, char* secret, int len_secret)
 {
     milagro_cs->secret.val = mbedtls_milagro_calloc(256);
@@ -136,7 +125,6 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
     // Set memory of parameters to be fit
     milagro_cs->Y.val = mbedtls_milagro_calloc(PGS);
     milagro_cs->V.val = mbedtls_milagro_calloc(2*PFS+1);
-    milagro_cs->UT.val = mbedtls_milagro_calloc(2*PFS+1);
     milagro_cs->U.val = mbedtls_milagro_calloc(2*PFS+1);
     milagro_cs->W.val = mbedtls_milagro_calloc(2*PFS+1);
     milagro_cs->R.val = mbedtls_milagro_calloc(2*PFS+1);
@@ -151,8 +139,6 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
     {
         milagro_cs->HID.val = mbedtls_milagro_calloc(2*PFS+1);
         milagro_cs->HID.len = 2*PFS+1;
-        milagro_cs->HTID.val = mbedtls_milagro_calloc(2*PFS+1);
-        milagro_cs->HTID.len = 2*PFS+1;
     }
     else if(client_or_server == MBEDTLS_MILAGRO_IS_CLIENT)
     {
@@ -166,8 +152,7 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
                                       &milagro_cs->secret,
                                       &milagro_cs->V,
                                       &milagro_cs->U,
-                                      &milagro_cs->UT,
-                                      &milagro_cs->time_permits, NULL,
+                                      NULL, NULL, NULL,
                                       milagro_cs->timevalue,
                                       &milagro_cs->Y) != 0)
         {
@@ -181,23 +166,14 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
     return 0;
 }
 
-int mbedtls_milagro_cs_check(int client_or_server, mbedtls_milagro_cs_context *milagro_cs )
+int mbedtls_milagro_cs_check(mbedtls_milagro_cs_context *milagro_cs )
 {
-    if(!(client_or_server == MBEDTLS_MILAGRO_IS_CLIENT || client_or_server == MBEDTLS_MILAGRO_IS_SERVER))
-        return MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS;
     if (!(milagro_cs->secret.val &&
         &milagro_cs->RNG.pool[0] &&
         &milagro_cs->RNG.ira[0]))
     {
         return MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS;
     }
-
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    if(client_or_server == MBEDTLS_MILAGRO_IS_CLIENT && milagro_cs->time_permits.val == NULL)
-    {
-        return MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS;
-    }
-#endif
     return 0;
 }
 
@@ -210,35 +186,12 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
     // Copy the client's identity length
     milagro_cs->hash_client_id.len = UINT16_MAX & (buf[1] |((uint16_t)buf[0])<< 8);
     milagro_cs->hash_client_id.val = mbedtls_milagro_calloc(milagro_cs->hash_client_id.len);
-
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    // Copy the length of the parameter UT
-    milagro_cs->UT.len =  UINT16_MAX & (buf[3] |((uint16_t)buf[2])<< 8);
-#else
     // Copy the length of the parameter UT
     milagro_cs->U.len =  UINT16_MAX & (buf[3] |((uint16_t)buf[2])<< 8);
-#endif
     // Copy the length of the parameter V
     milagro_cs->V.len = UINT16_MAX & (buf[5] |((uint16_t)buf[4])<< 8);
-    
     // Copy the client identity
     memcpy(milagro_cs->hash_client_id.val, &buf[6], milagro_cs->hash_client_id.len);
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    // Copy the parameter UT
-    memcpy(milagro_cs->UT.val, &buf[6+milagro_cs->hash_client_id.len], milagro_cs->UT.len);
-    // Copy the parameter V
-    memcpy(milagro_cs->V.val, &buf[6+milagro_cs->hash_client_id.len+milagro_cs->UT.len], milagro_cs->V.len);
-    // Copy the timevalue
-    client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->UT.len+
-                                      milagro_cs->V.len  ] << 24 ));
-    client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->UT.len+
-                                      milagro_cs->V.len+1] << 16));
-    client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->UT.len+
-                                      milagro_cs->V.len+2] <<  8));
-    client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->UT.len+
-                                      milagro_cs->V.len+3 ]      ));
-
-#else
     // Copy the parameter U
     memcpy(milagro_cs->U.val, &buf[6+milagro_cs->hash_client_id.len], milagro_cs->U.len);
     // Copy the parameter V
@@ -252,7 +205,6 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
                                       milagro_cs->V.len+2] <<  8));
     client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->U.len+
                                       milagro_cs->V.len+3 ]      ));
-#endif
     check_time = client_time-milagro_cs->timevalue;
     
     if(abs(check_time)<=MILAGRO_CS_TV_DIFFERENCE)
@@ -261,12 +213,7 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
         return(MBEDTLS_ERR_MILAGRO_CS_AUTHENTICATION_FAILED);
     
     if((int)len != milagro_cs->hash_client_id.len +
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-       milagro_cs->UT.len +
-#else
-       milagro_cs->U.len +
-#endif
-       milagro_cs->V.len + 10)
+       milagro_cs->U.len + milagro_cs->V.len + 10)
         return(MBEDTLS_ERR_MILAGRO_CS_AUTHENTICATION_FAILED);
     
     return 0;
@@ -276,12 +223,13 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
 int mbedtls_milagro_cs_authenticate_client( mbedtls_milagro_cs_context *milagro_cs )
 {
     int ret = 0;
-    if ( mbedtls_milagro_cs_server(milagro_cs->date,&milagro_cs->HID,&milagro_cs->HTID,&milagro_cs->Y,&milagro_cs->secret,&milagro_cs->U,
-                     &milagro_cs->UT,&milagro_cs->V,NULL,NULL,&milagro_cs->hash_client_id,NULL,milagro_cs->timevalue) != 0)
+    if ( mbedtls_milagro_cs_server(milagro_cs->date,&milagro_cs->HID,NULL,
+                                   &milagro_cs->Y,&milagro_cs->secret,&milagro_cs->U,
+                                   NULL,&milagro_cs->V,NULL,NULL,&milagro_cs->hash_client_id,
+                                   NULL,milagro_cs->timevalue) != 0)
     {
         ret = MBEDTLS_ERR_MILAGRO_CS_AUTHENTICATION_FAILED;
     }
-    
     return ret;
 }
 
@@ -291,6 +239,7 @@ int mbedtls_milagro_cs_authenticate_client( mbedtls_milagro_cs_context *milagro_
 int mbedtls_milagro_cs_write_exchange_parameter( int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
                                           unsigned char *buf, size_t len, size_t *ec_point_len )
 {
+    int ret;
     unsigned char *p = buf;
     const unsigned char *end = buf + len;
     
@@ -309,12 +258,8 @@ int mbedtls_milagro_cs_write_exchange_parameter( int client_or_server, mbedtls_m
     }
     else if(client_or_server == MBEDTLS_MILAGRO_IS_SERVER)
     {
-        int ret;
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-        ret = mbedtls_milagro_cs_get_g1_multiple(&milagro_cs->RNG,0,&milagro_cs->param_rand,&milagro_cs->HTID,&milagro_cs->W);
-#else
         ret = mbedtls_milagro_cs_get_g1_multiple(&milagro_cs->RNG,0,&milagro_cs->param_rand,&milagro_cs->HID,&milagro_cs->W);
-#endif
+        
         if( ret != 0)
         {
             return(MBEDTLS_ERR_MILAGRO_CS_SRV_PUB_PARAM_FAILED);
@@ -386,7 +331,7 @@ int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs)
     
     mbedtls_milagro_cs_hash_all(&milagro_cs->hash_client_id,
                                 &milagro_cs->U,
-                                &milagro_cs->UT,
+                                NULL,
                                 &milagro_cs->Y,
                                 &milagro_cs->V,
                                 &milagro_cs->R,
@@ -423,7 +368,7 @@ int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
     
     mbedtls_milagro_cs_hash_all(&milagro_cs->hash_client_id,
                                 &milagro_cs->U,
-                                &milagro_cs->UT,
+                                NULL,
                                 &milagro_cs->Y,
                                 &milagro_cs->V,
                                 &milagro_cs->R,
@@ -431,20 +376,9 @@ int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
                                 &milagro_cs->H);
     
     milagro_cs->R.max = 2*PGS+1;
-    milagro_cs->UT.max = 2*PGS+1;
     milagro_cs->param_rand.max = PGS;
     milagro_cs->secret.max = 4*PGS;
     
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    ret = mbedtls_milagro_cs_server_key(&milagro_cs->R,
-                                        &milagro_cs->secret,
-                                        &milagro_cs->param_rand,
-                                        &milagro_cs->H,
-                                        &milagro_cs->HID,
-                                        NULL,
-                                        &milagro_cs->UT,
-                                        &milagro_cs->shared_secret);
-#else
     ret = mbedtls_milagro_cs_server_key(&milagro_cs->R,
                                         &milagro_cs->secret,
                                         &milagro_cs->param_rand,
@@ -453,7 +387,6 @@ int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
                                         &milagro_cs->U,
                                         NULL,
                                         &milagro_cs->shared_secret);
-#endif
     if ( ret != 0)
     {
         return (MBEDTLS_ERR_MILAGRO_CS_KEY_COMPUTATOIN_FAILED);
@@ -472,14 +405,11 @@ void mbedtls_milagro_cs_free( mbedtls_milagro_cs_context *milagro_cs)
     mbedtls_milagro_free_octet(&milagro_cs->X);
     mbedtls_milagro_free_octet(&milagro_cs->G1);
     mbedtls_milagro_free_octet(&milagro_cs->G2);
-    mbedtls_milagro_free_octet(&milagro_cs->time_permits);
     mbedtls_milagro_free_octet(&milagro_cs->HID);
-    mbedtls_milagro_free_octet(&milagro_cs->HTID);
     mbedtls_milagro_free_octet(&milagro_cs->param_rand);
     mbedtls_milagro_free_octet(&milagro_cs->W);
     mbedtls_milagro_free_octet(&milagro_cs->R);
     mbedtls_milagro_free_octet(&milagro_cs->U);
-    mbedtls_milagro_free_octet(&milagro_cs->UT);
     mbedtls_milagro_free_octet(&milagro_cs->hash_client_id);
     mbedtls_milagro_free_octet(&milagro_cs->Y);
     mbedtls_milagro_free_octet(&milagro_cs->V);

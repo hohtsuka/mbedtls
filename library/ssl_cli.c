@@ -188,13 +188,9 @@ static void ssl_write_milagro_cs_ext( mbedtls_ssl_context *ssl,
     *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->hash_client_id.len     ) >> 8 ) & 0xFF );
     *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->hash_client_id.len     )      ) & 0xFF );
     
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->UT.len     ) >> 8 ) & 0xFF );
-    *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->UT.len     )      ) & 0xFF );
-#else
     *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->U.len     ) >> 8 ) & 0xFF );
     *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->U.len     )      ) & 0xFF );
-#endif
+
     *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->V.len     ) >> 8 ) & 0xFF );
     *p++ = (unsigned char)( ( ( ssl->handshake->milagro_cs->V.len     )      ) & 0xFF );
     
@@ -203,15 +199,9 @@ static void ssl_write_milagro_cs_ext( mbedtls_ssl_context *ssl,
     memcpy( p, ssl->handshake->milagro_cs->hash_client_id.val, ssl->handshake->milagro_cs->hash_client_id.len);
     *olen += ssl->handshake->milagro_cs->hash_client_id.len;
     p += ssl->handshake->milagro_cs->hash_client_id.len;
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    memcpy( p, ssl->handshake->milagro_cs->UT.val, ssl->handshake->milagro_cs->UT.len);
-    *olen += ssl->handshake->milagro_cs->UT.len;
-    p += ssl->handshake->milagro_cs->UT.len;
-#else
     memcpy( p, ssl->handshake->milagro_cs->U.val, ssl->handshake->milagro_cs->U.len );
     *olen += ssl->handshake->milagro_cs->U.len;
     p += ssl->handshake->milagro_cs->U.len;
-#endif
     memcpy( p, ssl->handshake->milagro_cs->V.val, ssl->handshake->milagro_cs->V.len );
     *olen += ssl->handshake->milagro_cs->V.len;
     p += ssl->handshake->milagro_cs->V.len;
@@ -985,7 +975,7 @@ static int ssl_write_client_hello( mbedtls_ssl_context *ssl )
 
 #if defined(MBEDTLS_MILAGRO_CS_C)
         if( ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_MILAGRO_CS &&
-            mbedtls_milagro_cs_check(MBEDTLS_SSL_IS_CLIENT, ssl->handshake->milagro_cs) != 0 )
+            mbedtls_milagro_cs_check(ssl->handshake->milagro_cs) != 0 )
             continue;
 #endif
 

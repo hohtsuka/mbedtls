@@ -38,7 +38,6 @@
 #define mbedtls_milagro_cs_random_generate MPIN_RANDOM_GENERATE
 #define mbedtls_milagro_cs_get_server_secret MPIN_GET_SERVER_SECRET
 #define mbedtls_milagro_cs_get_client_secret MPIN_GET_CLIENT_SECRET
-#define mbedtls_milagro_cs_get_client_permit MPIN_GET_CLIENT_PERMIT
 
 int write_to_file(const char * path, octet to_write)
 {
@@ -78,13 +77,6 @@ int main(){
     /* Server secret and shares */
     char serverSecret[4*PFS];
     octet ServerSecret={sizeof(serverSecret),sizeof(serverSecret),serverSecret};
-
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    /* Time Permit and shares */
-    char tp[2*PFS+1];
-    octet TP={sizeof(tp),sizeof(tp),tp};
-    int date = mbedtls_milagro_cs_today();
-#endif
     
     /* Token stored on computer */
     char token[2*PFS+1];
@@ -142,18 +134,6 @@ int main(){
     printf("Client Secret = 0x");
     OCT_output(&TOKEN);
 
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    /* Generate Time Permits */
-    rtn = mbedtls_milagro_cs_get_client_permit(date,&MS1,&HASH_ID,&TP);
-    if (rtn != 0)
-    {
-        printf("mbedtls_milagro_cs_get_client_permit(date,&MS1,&HASH_ID,&TP1) Error %d\n", rtn);
-        return 1;
-    }
-    printf("\nTime Permit = 0x");
-    OCT_output(&TP);
-#endif
-
     rtn = mbedtls_milagro_cs_extract_pin(&HASH_ID, PIN, &TOKEN);
     if (rtn != 0)
     {
@@ -163,9 +143,6 @@ int main(){
     printf("\nToken = 0x");
     OCT_output(&TOKEN);
     
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    write_to_file("CSTimePermit", TP);
-#endif
     write_to_file("CSServerKey", ServerSecret);
     
     write_to_file("CSClientKey", TOKEN);

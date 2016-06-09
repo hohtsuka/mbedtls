@@ -163,7 +163,7 @@ static int ssl_parse_milagro_cs_ext( mbedtls_ssl_context *ssl,
         exit(-1);
     }
     
-    if( mbedtls_milagro_cs_check(MBEDTLS_SSL_IS_SERVER, ssl->handshake->milagro_cs ) != 0 )
+    if( mbedtls_milagro_cs_check( ssl->handshake->milagro_cs ) != 0 )
     {
         MBEDTLS_SSL_DEBUG_MSG( 3, ( "skip milagro_cs extension" ) );
         return( 0 );

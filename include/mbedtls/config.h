@@ -818,17 +818,6 @@
 #define MBEDTLS_MILAGRO_P2P_C
 
 /**
- * \def MBEDTLS_MILAGRO_CS_TIME_PERMITS
- *
- * Enable support for time permits in MILAGRO_CS
- *
- * Requires: MBEDTLS_MILAGRO_CS_C
- *
- * Comment this macro to disable support for time permits in MILAGRO_CS
- */
-//#define MBEDTLS_MILAGRO_CS_TIME_PERMITS
-
-/**
  * \def MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
  *
  * Do not add default entropy sources. These are the platform specific,

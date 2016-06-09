@@ -174,7 +174,7 @@ int read_from_file(const char* path, char* secret, int length_key){
     FILE* file = fopen(path,"r");
     if(!file)
     {
-        printf("Secret or time permit file is missing\n");
+        printf("Secret file is missing\n");
         exit(-1);
     }
 
@@ -263,9 +263,6 @@ int main( int argc, char *argv[] )
 #if defined(MBEDTLS_MILAGRO_CS_C)
     mbedtls_milagro_cs_context milagro_cs;
     char *cs_client_key;
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-    char *cs_tp;
-#endif
 #endif
 #if defined(MBEDTLS_MILAGRO_P2P_C)
     mbedtls_milagro_p2p_context milagro_p2p;
@@ -543,12 +540,6 @@ int main( int argc, char *argv[] )
         read_from_file("CSClientKey", cs_client_key, 2*(2*PFS+1));
         mbedtls_milagro_cs_set_secret(&milagro_cs, cs_client_key, 2*PFS+1); mbedtls_free(cs_client_key);
         mbedtls_milagro_cs_set_client_identity (&milagro_cs, (char *)DFL_CLIENT_IDENTITY);
-    
-#if defined(MBEDTLS_MILAGRO_CS_TIME_PERMITS)
-        cs_tp = calloc(2*PFS+1,sizeof(char));
-        read_from_file("CSTimePermit", cs_tp, 2*(2*PFS+1));
-        mbedtls_milagro_cs_set_timepermit(&milagro_cs, cs_tp, 2*PFS+1); mbedtls_free(cs_tp);
-#endif
     
         if (mbedtls_milagro_cs_setup_RNG(&milagro_cs, &entropy) != 0)
         {
