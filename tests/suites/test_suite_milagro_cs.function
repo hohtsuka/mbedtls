@@ -11,6 +11,12 @@
 /* BEGIN_CASE */
 void milagro_cs_do( char *client_identity, char *client_secret, char *server_secret )
 {
+    size_t len1, len2;
+    char seed[32];
+    octet SEED = {0,sizeof(seed),seed};
+    int i;
+    unsigned char *cs_client_key;
+    unsigned char *cs_server_key;
     /*
      * Initializate parameters
      */
@@ -22,9 +28,8 @@ void milagro_cs_do( char *client_identity, char *client_secret, char *server_sec
     /*
      * Set external inputs
      */
-    size_t len1, len2;
-    unsigned char *cs_client_key = unhexify_alloc(client_secret,&len1);
-    unsigned char *cs_server_key = unhexify_alloc(server_secret,&len2);
+    cs_client_key = unhexify_alloc(client_secret,&len1);
+    cs_server_key = unhexify_alloc(server_secret,&len2);
     
     mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1);
     mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS);
@@ -34,10 +39,8 @@ void milagro_cs_do( char *client_identity, char *client_secret, char *server_sec
      * Setup random generator (fake entropy)
      */
     
-    char seed[32] = {0};
-    octet SEED = {0,sizeof(seed),seed};
     SEED.len=32;
-    for (int i=0;i<32;i++) SEED.val[i]=i+1;
+    for (i=0;i<32;i++) SEED.val[i]=i+1;
     mbedtls_milagro_cs_create_csprng(&milagro_cs_client.RNG,&SEED);
     mbedtls_milagro_cs_create_csprng(&milagro_cs_server.RNG,&SEED);
     /*
@@ -101,6 +104,12 @@ exit:
 /* BEGIN_CASE */
 void milagro_cs_fail( char *client_identity, char *client_secret, char *server_secret )
 {
+    size_t len1, len2;
+    char seed[32];
+    octet SEED = {0,sizeof(seed),seed};
+    int i;
+    unsigned char *cs_client_key;
+    unsigned char *cs_server_key;
     /*
      * Initializate parameters
      */
@@ -112,9 +121,8 @@ void milagro_cs_fail( char *client_identity, char *client_secret, char *server_s
     /*
      * Set external inputs
      */
-    size_t len1, len2;
-    unsigned char *cs_client_key = unhexify_alloc(client_secret,&len1);
-    unsigned char *cs_server_key = unhexify_alloc(server_secret,&len2);
+    cs_client_key = unhexify_alloc(client_secret,&len1);
+    cs_server_key = unhexify_alloc(server_secret,&len2);
     
     mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1);
     mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS);
@@ -123,11 +131,8 @@ void milagro_cs_fail( char *client_identity, char *client_secret, char *server_s
     /*
      * Setup random generator (fake entropy)
      */
-    
-    char seed[32] = {0};
-    octet SEED = {0,sizeof(seed),seed};
     SEED.len=32;
-    for (int i=0;i<32;i++) SEED.val[i]=i+1;
+    for (i=0;i<32;i++) SEED.val[i]=i+1;
     mbedtls_milagro_cs_create_csprng(&milagro_cs_client.RNG,&SEED);
     mbedtls_milagro_cs_create_csprng(&milagro_cs_server.RNG,&SEED);
     /*
