@@ -11,6 +11,13 @@
 void milagro_p2p_do(char *client_identity, char *server_identity, 
                                 char *client_secret, char *server_secret, int fail_or_not)
 {
+    int i;
+    int value_eq_key;
+    size_t len1, len2;
+    char seed[32];
+    octet SEED = {0,sizeof(seed),seed};
+    unsigned char *p2p_client_key;
+    unsigned char *p2p_server_key;
     /*
      * Initializate parameters
      */
@@ -22,9 +29,8 @@ void milagro_p2p_do(char *client_identity, char *server_identity,
     /*
      * Set external inputs
      */
-    size_t len1, len2;
-    unsigned char *p2p_client_key = unhexify_alloc(client_secret,&len1);
-    unsigned char *p2p_server_key = unhexify_alloc(server_secret,&len2);    
+    p2p_client_key = unhexify_alloc(client_secret,&len1);
+    p2p_server_key = unhexify_alloc(server_secret,&len2);    
 
     mbedtls_milagro_p2p_set_key(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p_client, (char*) p2p_client_key, 4*PFS);
     mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p_client, client_identity);
@@ -34,10 +40,8 @@ void milagro_p2p_do(char *client_identity, char *server_identity,
     /*
      * Setup random generator (fake entropy)
      */
-    char seed[32] = {0};
-    octet SEED = {0,sizeof(seed),seed};
     SEED.len=32;
-    for (int i=0;i<32;i++) SEED.val[i]=i+1;
+    for (i=0;i<32;i++) SEED.val[i]=i+1;
     mbedtls_milagro_p2p_create_csprng(&milagro_p2p_client.RNG,&SEED);
     mbedtls_milagro_p2p_create_csprng(&milagro_p2p_server.RNG,&SEED);
 
@@ -74,7 +78,7 @@ void milagro_p2p_do(char *client_identity, char *server_identity,
     /*
      * Check shared secret
      */
-    int value_eq_key = 0;
+    value_eq_key = 0;
     if (strncmp(milagro_p2p_client.shared_secret.val,milagro_p2p_server.shared_secret.val,milagro_p2p_client.shared_secret.len) != 0)
         value_eq_key = -1;
     TEST_ASSERT( value_eq_key == fail_or_not );
