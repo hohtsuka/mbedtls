@@ -22,9 +22,9 @@ void milagro_cs_do( char *client_identity, char *client_secret, char *server_sec
     /*
      * Set external inputs
      */
-    size_t len1, len3;
+    size_t len1, len2;
     unsigned char *cs_client_key = unhexify_alloc(client_secret,&len1);
-    unsigned char *cs_server_key = unhexify_alloc(server_secret,&len3);
+    unsigned char *cs_server_key = unhexify_alloc(server_secret,&len2);
     
     mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1);
     mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS);
@@ -112,9 +112,9 @@ void milagro_cs_fail( char *client_identity, char *client_secret, char *server_s
     /*
      * Set external inputs
      */
-    size_t len1, len3;
+    size_t len1, len2;
     unsigned char *cs_client_key = unhexify_alloc(client_secret,&len1);
-    unsigned char *cs_server_key = unhexify_alloc(server_secret,&len3);
+    unsigned char *cs_server_key = unhexify_alloc(server_secret,&len2);
     
     mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1);
     mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS);
