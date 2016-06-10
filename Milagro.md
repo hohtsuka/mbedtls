@@ -14,11 +14,11 @@ the operating system package manager.
 If not, then you can download it from www.cmake.org
 
 
-<h2>Compiling mpin-crypto</h2>
+<h2>Compiling mpin-crypto-c</h2>
 
 <ol type="disc">
- <li>git clone https://github.com/miracl/milagro-crypto</li>
- <li>cd milagro-crypto</li>
+ <li>git clone https://github.com/miracl/milagro-crypto-c.git</li>
+ <li>cd milagro-crypto-c</li>
  <li>mkdir release</li>
  <li>cd release</li>
  <li>cmake -D CMAKE_INSTALL_PREFIX=/opt/amcl -D USE_ANONYMOUS=on -D WORD_LENGTH=64 -D BUILD_WCC=on  -D BUILD_MPIN=on  ..</li>
@@ -27,10 +27,10 @@ If not, then you can download it from www.cmake.org
  <li>sudo make install</li>
 </ol>
 
-<h2>Compiling mbed TLS</h2>
+<h2>Compiling mbedtls</h2>
 
 <ol type="disc">
-  <li>git clone https://github.com/miracl/milagro-tls</li>
+  <li>git clone https://github.com/miracl/mbedtls.git</li>
   <li>cd mtls</li>
   <li>mkdir release</li>
   <li>cd release</li>
