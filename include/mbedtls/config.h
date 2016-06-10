@@ -156,6 +156,7 @@
 //#define MBEDTLS_PLATFORM_FPRINTF_ALT
 //#define MBEDTLS_PLATFORM_PRINTF_ALT
 //#define MBEDTLS_PLATFORM_SNPRINTF_ALT
+//#define MBEDTLS_PLATFORM_NV_SEED_ALT
 
 /**
  * \def MBEDTLS_DEPRECATED_WARNING
@@ -856,6 +857,34 @@
  * MBEDTLS_SHA512_C are defined. Otherwise the available hash module is used.
  */
 //#define MBEDTLS_ENTROPY_FORCE_SHA256
+
+/**
+ * \def MBEDTLS_ENTROPY_NV_SEED
+ *
+ * Enable the non-volatile (NV) seed file-based entropy source.
+ * (Also enables the NV seed read/write functions in the platform layer)
+ *
+ * This is crucial (if not required) on systems that do not have a
+ * cryptographic entropy source (in hardware or kernel) available.
+ *
+ * Requires: MBEDTLS_ENTROPY_C, MBEDTLS_PLATFORM_C
+ *
+ * \note The read/write functions that are used by the entropy source are
+ *       determined in the platform layer, and can be modified at runtime and/or
+ *       compile-time depending on the flags (MBEDTLS_PLATFORM_NV_SEED_*) used.
+ *
+ * \note If you use the default implementation functions that read a seedfile
+ *       with regular fopen(), please make sure you make a seedfile with the
+ *       proper name (defined in MBEDTLS_PLATFORM_STD_NV_SEED_FILE) and at
+ *       least MBEDTLS_ENTROPY_BLOCK_SIZE bytes in size that can be read from
+ *       and written to or you will get an entropy source error! The default
+ *       implementation will only use the first MBEDTLS_ENTROPY_BLOCK_SIZE
+ *       bytes from the file.
+ *
+ * \note The entropy collector will write to the seed file before entropy is
+ *       given to an external source, to update it.
+ */
+//#define MBEDTLS_ENTROPY_NV_SEED
 
 /**
  * \def MBEDTLS_MEMORY_DEBUG
@@ -2539,6 +2568,9 @@
 //#define MBEDTLS_PLATFORM_STD_SNPRINTF    snprintf /**< Default snprintf to use, can be undefined */
 //#define MBEDTLS_PLATFORM_STD_EXIT_SUCCESS       0 /**< Default exit value to use, can be undefined */
 //#define MBEDTLS_PLATFORM_STD_EXIT_FAILURE       1 /**< Default exit value to use, can be undefined */
+//#define MBEDTLS_PLATFORM_STD_NV_SEED_READ   mbedtls_platform_std_nv_seed_read /**< Default nv_seed_read function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_STD_NV_SEED_WRITE  mbedtls_platform_std_nv_seed_write /**< Default nv_seed_write function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_STD_NV_SEED_FILE  "seedfile" /**< Seed file to read/write with default implementation */
 
 /* To Use Function Macros MBEDTLS_PLATFORM_C must be enabled */
 /* MBEDTLS_PLATFORM_XXX_MACRO and MBEDTLS_PLATFORM_XXX_ALT cannot both be defined */
@@ -2551,6 +2583,8 @@
 //#define MBEDTLS_PLATFORM_PRINTF_MACRO        printf /**< Default printf macro to use, can be undefined */
 /* Note: your snprintf must correclty zero-terminate the buffer! */
 //#define MBEDTLS_PLATFORM_SNPRINTF_MACRO    snprintf /**< Default snprintf macro to use, can be undefined */
+//#define MBEDTLS_PLATFORM_NV_SEED_READ_MACRO   mbedtls_platform_std_nv_seed_read /**< Default nv_seed_read function to use, can be undefined */
+//#define MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO  mbedtls_platform_std_nv_seed_write /**< Default nv_seed_write function to use, can be undefined */
 
 /* SSL Cache options */
 //#define MBEDTLS_SSL_CACHE_DEFAULT_TIMEOUT       86400 /**< 1 day  */
@@ -2579,11 +2613,7 @@
 /* X509 options */
 //#define MBEDTLS_X509_MAX_INTERMEDIATE_CA   8   /**< Maximum number of intermediate CAs in a verification chain. */
 
-/* \} name SECTION: Module configuration options */
-
-#if defined(TARGET_LIKE_MBED)
-#include "mbedtls/target_config.h"
-#endif
+/* \} name SECTION: Customisation configuration options */
 
 /*
  * Allow user to override any previous default.
