@@ -509,7 +509,7 @@
  *      MBEDTLS_TLS_MILAGRO_CS_WITH_3DES_EDE_CBC_SHA512
  *
  */
-#define MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED
+//#define MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED
@@ -527,7 +527,7 @@
  *      MBEDTLS_TLS_MILAGRO_P2P_WITH_3DES_EDE_CBC_SHA512
  *
  */
-//#define MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED
+#define MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED
@@ -818,22 +818,24 @@
  *
  * Enable support for autentication using MILAGRO_CS
  *
- * Requires: "mpin.h" from milagro-crypto library
+ * Requires: MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED
+ *           "mpin.h" from milagro-crypto-c library
  *
  * Comment this macro to disable support for autentication using MILAGRO_CS in TLS
  */
-#define MBEDTLS_MILAGRO_CS_C
+//#define MBEDTLS_MILAGRO_CS_C
 
 /**
  * \def MBEDTLS_MILAGRO_P2P_C
  *
  * Enable support for using MILAGRO_P2P PROTOCOL
  *
- * Requires: "wcc.h" from milagro-crypto library
+ * Requires: MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED 
+ *           "wcc.h" from milagro-crypto-c library
  *
  * Comment this macro to disable support for using MILAGRO_P2P in TLS
  */
-//#define MBEDTLS_MILAGRO_P2P_C
+#define MBEDTLS_MILAGRO_P2P_C
 
 /**
  * \def MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES

@@ -31,7 +31,6 @@
 
 #define C99
 #include "mpin.h"
-#include "mbedtls/config.h"
 #include "mbedtls/milagro.h"
 
 #define mbedtls_milagro_cs_extract_pin MPIN_EXTRACT_PIN

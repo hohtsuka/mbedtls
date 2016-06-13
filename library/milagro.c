@@ -65,11 +65,11 @@ void mbedtls_milagro_free_octet(octet *to_be_freed)
     }
 }
 
-#endif /* defined(MBEDTLS_MILAGRO_CS_C) || defined(MBEDTLS_MILAGRO_P2P_C) */
+#endif /* MBEDTLS_MILAGRO_CS_C || MBEDTLS_MILAGRO_P2P_C */
 
 #if defined(MBEDTLS_MILAGRO_CS_C)
 
-void mbedtls_milagro_cs_init( mbedtls_milagro_cs_context * milagro_cs)
+void mbedtls_milagro_cs_init( mbedtls_milagro_cs_context *milagro_cs)
 {
     memset(milagro_cs,0,sizeof(*milagro_cs));
 }
