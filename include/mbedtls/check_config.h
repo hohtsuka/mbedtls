@@ -203,6 +203,26 @@
 #error "MBEDTLS_MEMORY_BUFFER_ALLOC_C defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_MILAGRO_CS_C) &&                                    \
+    !defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED)
+#error "MBEDTLS_MILAGRO_CS_C defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED) &&                  \
+    !defined(MBEDTLS_MILAGRO_CS_C)
+#error "MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_MILAGRO_P2P_C) &&                                    \
+!defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED)
+#error "MBEDTLS_MILAGRO_P2P_C defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED) &&                  \
+!defined(MBEDTLS_MILAGRO_P2P_C)
+#error "MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED defined, but not all prerequisites"
+#endif
+
 #if defined(MBEDTLS_PADLOCK_C) && !defined(MBEDTLS_HAVE_ASM)
 #error "MBEDTLS_PADLOCK_C defined, but not all prerequisites"
 #endif
