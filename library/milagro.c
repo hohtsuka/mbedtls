@@ -156,12 +156,12 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
                                       milagro_cs->timevalue,
                                       &milagro_cs->Y) != 0)
         {
-            return -1;
+            return MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS;
         }
     }
     else
     {
-        return -1;
+        return MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS;
     }
     return 0;
 }
@@ -233,6 +233,38 @@ int mbedtls_milagro_cs_authenticate_client( mbedtls_milagro_cs_context *milagro_
     return ret;
 }
 
+int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
+{
+    int ret = 0;
+    
+    mbedtls_milagro_cs_hash_all(&milagro_cs->hash_client_id,
+                                &milagro_cs->U,
+                                NULL,
+                                &milagro_cs->Y,
+                                &milagro_cs->V,
+                                &milagro_cs->R,
+                                &milagro_cs->W,
+                                &milagro_cs->H);
+    
+    milagro_cs->R.max = 2*PGS+1;
+    milagro_cs->param_rand.max = PGS;
+    milagro_cs->secret.max = 4*PGS;
+    
+    ret = mbedtls_milagro_cs_server_key(&milagro_cs->R,
+                                        &milagro_cs->secret,
+                                        &milagro_cs->param_rand,
+                                        &milagro_cs->H,
+                                        &milagro_cs->HID,
+                                        &milagro_cs->U,
+                                        NULL,
+                                        &milagro_cs->shared_secret);
+    if ( ret != 0)
+    {
+        return (MBEDTLS_ERR_MILAGRO_CS_KEY_COMPUTATOIN_FAILED);
+    }
+    
+    return 0;
+}
 
 #endif /* MBEDTLS_SSL_SRV_C */
 
@@ -287,7 +319,6 @@ int mbedtls_milagro_cs_write_exchange_parameter( int client_or_server, mbedtls_m
 int mbedtls_milagro_cs_read_public_parameter( int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
                                        const unsigned char *buf, size_t len  )
 {
-#if defined(MBEDTLS_SSL_CLI_C)
     if(client_or_server == MBEDTLS_MILAGRO_IS_CLIENT)
     {
         // Copy the length of the parameter W
@@ -301,8 +332,6 @@ int mbedtls_milagro_cs_read_public_parameter( int client_or_server, mbedtls_mila
         }
     }
     else
-#endif
-#if defined(MBEDTLS_SSL_SRV_C)
     if(client_or_server == MBEDTLS_MILAGRO_IS_SERVER)
     {
         // Copy the length of the parameter R
@@ -316,7 +345,6 @@ int mbedtls_milagro_cs_read_public_parameter( int client_or_server, mbedtls_mila
         }
     }
     else
-#endif
         return(MBEDTLS_ERR_MILAGRO_BAD_INPUT);
     
     return 0;
@@ -359,43 +387,6 @@ int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs)
     return 0;
 }
 #endif /* MBEDTLS_SSL_CLI_C */
-
-#if defined(MBEDTLS_SSL_SRV_C)
-
-int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
-{
-    int ret = 0;
-    
-    mbedtls_milagro_cs_hash_all(&milagro_cs->hash_client_id,
-                                &milagro_cs->U,
-                                NULL,
-                                &milagro_cs->Y,
-                                &milagro_cs->V,
-                                &milagro_cs->R,
-                                &milagro_cs->W,
-                                &milagro_cs->H);
-    
-    milagro_cs->R.max = 2*PGS+1;
-    milagro_cs->param_rand.max = PGS;
-    milagro_cs->secret.max = 4*PGS;
-    
-    ret = mbedtls_milagro_cs_server_key(&milagro_cs->R,
-                                        &milagro_cs->secret,
-                                        &milagro_cs->param_rand,
-                                        &milagro_cs->H,
-                                        &milagro_cs->HID,
-                                        &milagro_cs->U,
-                                        NULL,
-                                        &milagro_cs->shared_secret);
-    if ( ret != 0)
-    {
-        return (MBEDTLS_ERR_MILAGRO_CS_KEY_COMPUTATOIN_FAILED);
-    }
-    
-    return 0;
-}
-
-#endif /* #if MBEDTLS_SSL_SRV_C */
 
 void mbedtls_milagro_cs_free( mbedtls_milagro_cs_context *milagro_cs)
 {
@@ -696,10 +687,12 @@ int mbedtls_milagro_p2p_read_public_parameters( int client_or_server, mbedtls_mi
     }
     else
     {
-        return -1;
+        return MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS;
     }
     return 0;
 }
+
+#if defined(MBEDTLS_SSL_CLI_C)
 
 int mbedtls_milagro_p2p_shared_secret_cli(mbedtls_milagro_p2p_context *milagro_p2p)
 {
@@ -753,6 +746,10 @@ int mbedtls_milagro_p2p_shared_secret_cli(mbedtls_milagro_p2p_context *milagro_p
     return 0;
 }
 
+#endif
+
+#if defined(MBEDTLS_SSL_SRV_C)
+
 int mbedtls_milagro_p2p_shared_secret_srv(mbedtls_milagro_p2p_context *milagro_p2p)
 {
     mbedtls_milagro_p2p_hq(&milagro_p2p->server_pub_param_G1,
@@ -782,6 +779,8 @@ int mbedtls_milagro_p2p_shared_secret_srv(mbedtls_milagro_p2p_context *milagro_p
     
     return 0;
 }
+
+#endif
 
 void mbedtls_milagro_p2p_free( mbedtls_milagro_p2p_context *milagro_p2p)
 {

@@ -157,11 +157,7 @@ static int ssl_parse_milagro_cs_ext( mbedtls_ssl_context *ssl,
 {
     int ret;
     
-    if (mbedtls_milagro_cs_alloc_memory(MBEDTLS_SSL_IS_SERVER, ssl->handshake->milagro_cs) != 0)
-    {
-        printf("\n\nFailed while allocating memory for the MILAGRO_CS parameters\n");
-        exit(-1);
-    }
+    mbedtls_milagro_cs_alloc_memory(MBEDTLS_SSL_IS_SERVER, ssl->handshake->milagro_cs);
     
     if( mbedtls_milagro_cs_check( ssl->handshake->milagro_cs ) != 0 )
     {
