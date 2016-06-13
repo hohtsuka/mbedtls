@@ -209,6 +209,17 @@ void mbedtls_milagro_cs_set_secret( mbedtls_milagro_cs_context *milagro_cs, char
  *
  */
 void mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_cs, char * client_identity);
+
+/**
+ * \brief           Compute the shared secret at client's side
+ *
+ * \param milagro_cs            Context to use
+ *
+ * \return                      0 if successful, a negative error code otherwise
+ *
+ */
+int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs);
+
 #endif
 
 /**
@@ -258,6 +269,16 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
  */
 int mbedtls_milagro_cs_authenticate_client( mbedtls_milagro_cs_context *milagro_cs );
 
+/**
+ * \brief           Compute the shared secret at server's side
+ *
+ * \param milagro_cs            Context to use
+ *
+ * \return                      0 if successful, a negative error code otherwise
+ *
+ */
+int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs);
+
 #endif
 
 /**
@@ -290,29 +311,7 @@ int mbedtls_milagro_cs_write_exchange_parameter( int client_or_server, mbedtls_m
  *
  */
 int mbedtls_milagro_cs_read_public_parameter( int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
-
                                              const unsigned char *buf, size_t len  );
-/**
- * \brief           Compute the shared secret at client's side
- *
- * \param milagro_cs            Context to use
- *
- * \return                      0 if successful, a negative error code otherwise
- *
- */
-int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs);
-
-
-/**
- * \brief           Compute the shared secret at server's side
- *
- * \param milagro_cs            Context to use
- *
- * \return                      0 if successful, a negative error code otherwise
- *
- */
-int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs);
-
 
 /**
  * \brief           Free the context milagro_cs
@@ -473,6 +472,8 @@ int mbedtls_milagro_p2p_write_public_parameters(int client_or_server, mbedtls_mi
 int mbedtls_milagro_p2p_read_public_parameters( int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p,
                                              const unsigned char *buf, size_t len  );
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 /**
  * \brief           Compute the shared secret at client's side
  *
@@ -483,6 +484,9 @@ int mbedtls_milagro_p2p_read_public_parameters( int client_or_server, mbedtls_mi
  */
 int mbedtls_milagro_p2p_shared_secret_cli(mbedtls_milagro_p2p_context *milagro_p2p);
 
+#endif
+
+#if defined(MBEDTLS_SSL_SRV_C)
 
 /**
  * \brief           Compute the shared secret at server's side
@@ -494,6 +498,7 @@ int mbedtls_milagro_p2p_shared_secret_cli(mbedtls_milagro_p2p_context *milagro_p
  */
 int mbedtls_milagro_p2p_shared_secret_srv(mbedtls_milagro_p2p_context *milagro_p2p);
 
+#endif
 
 /**
  * \brief           Free the context milagro_p2p
@@ -505,9 +510,4 @@ void mbedtls_milagro_p2p_free( mbedtls_milagro_p2p_context *milagro_p2p);
 
 
 #endif /* milagro_h */
-
-
-
-
-
 
