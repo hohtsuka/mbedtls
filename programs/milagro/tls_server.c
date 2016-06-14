@@ -429,58 +429,8 @@ int main( int argc, char *argv[] )
 
     mbedtls_printf( " ok\n" );
     
-#if defined(MBEDTLS_MILAGRO_CS_C)
     /*
-     * 2.5 Setup MILAGRO_CS parameters
-     */
-    printf( "  . Setting up MILAGRO_CS parameters..." );
-    
-    char *cs_server_key;
-    cs_server_key = calloc(4*PFS,sizeof(char));
-    
-    read_from_file("CSServerKey", cs_server_key, 2*(4*PFS));
-    
-    mbedtls_milagro_cs_set_secret(&milagro_cs, cs_server_key, 4*PFS); mbedtls_free(cs_server_key);
-    
-    if( mbedtls_milagro_cs_setup_RNG(&milagro_cs, &entropy) != 0)
-    {
-        printf("\n\nFailed while setting the RNG in MILAGRO_CS\n");
-        exit(-1);
-    }
-    
-    printf( " ok\n" );
-    
-#endif /* MBEDTLS_MILAGRO_CS_C */
-    
-    
-#if defined(MBEDTLS_MILAGRO_P2P_C)
-    
-    /*
-     * 2 Setup MILAGRO_P2P parameters
-     */
-    mbedtls_printf( "  . Setting up MILAGRO_P2P parameters..." );
-
-    char *p2p_server_key;
-    p2p_server_key = calloc(2*PFS+1, sizeof(char));
-    
-    read_from_file("P2PServerKey", p2p_server_key, 2*(2*PFS+1));
-    
-    mbedtls_milagro_p2p_set_key(MBEDTLS_MILAGRO_IS_SERVER, &milagro_p2p, p2p_server_key, 2*PFS+1); mbedtls_free(p2p_server_key);
-    
-    if (mbedtls_milagro_p2p_setup_RNG( &milagro_p2p, &entropy) != 0 )
-    {
-        mbedtls_printf("\n\nFailed while setting the RNG in MILAGRO_P2P\n");
-        exit(-1);
-    }
-    
-    mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_SERVER, &milagro_p2p, (char *)"server@miracl.com");
-    
-    mbedtls_printf( " ok\n" );
-#endif /* MBEDTLS_MILAGRO_P2P_C */
-
-
-    /*
-     * 3. Setup the listening TCP socket
+     * 2. Setup the listening TCP socket
      */
     mbedtls_printf( "  . Bind on %s://%s:%s/ ...",
             opt.transport == MBEDTLS_SSL_TRANSPORT_STREAM ? "tcp" : "udp",
@@ -571,6 +521,67 @@ reset:
 
     mbedtls_net_free( &client_fd );
     mbedtls_ssl_session_reset( &ssl );
+    
+    
+#if defined(MBEDTLS_MILAGRO_CS_C)
+    /*
+     * 3 Setup MILAGRO_CS parameters
+     */
+    printf( "  . Setting up MILAGRO_CS parameters..." );
+    
+    char *cs_server_key;
+    cs_server_key = calloc(4*PFS,sizeof(char));
+    
+    read_from_file("CSServerKey", cs_server_key, 2*(4*PFS));
+    
+    if(mbedtls_milagro_cs_set_secret(&milagro_cs, cs_server_key, 4*PFS) != 0 )
+    {
+        printf("\n\nFailed while setting the RNG in MILAGRO_CS\n");
+        goto exit;
+    }
+    if( mbedtls_milagro_cs_setup_RNG(&milagro_cs, &entropy) != 0)
+    {
+        printf("\n\nFailed while setting the RNG in MILAGRO_CS\n");
+        goto exit;
+    }
+    mbedtls_free(cs_server_key);
+    printf( " ok\n" );
+    
+#endif /* MBEDTLS_MILAGRO_CS_C */
+    
+    
+#if defined(MBEDTLS_MILAGRO_P2P_C)
+    
+    /*
+     * 3 Setup MILAGRO_P2P parameters
+     */
+    mbedtls_printf( "  . Setting up MILAGRO_P2P parameters..." );
+    
+    char *p2p_server_key;
+    p2p_server_key = calloc(2*PFS+1, sizeof(char));
+    
+    read_from_file("P2PServerKey", p2p_server_key, 2*(2*PFS+1));
+    
+    if ( mbedtls_milagro_p2p_set_secret(MBEDTLS_MILAGRO_IS_SERVER, &milagro_p2p, p2p_server_key, 2*PFS+1) != 0)
+    {
+        mbedtls_printf("\n\nFailed while setting the secret in MILAGRO_P2P\n");
+        exit(-1);
+    }
+    
+    if (mbedtls_milagro_p2p_setup_RNG( &milagro_p2p, &entropy) != 0 )
+    {
+        mbedtls_printf("\n\nFailed while setting the RNG in MILAGRO_P2P\n");
+        exit(-1);
+    }
+    
+    if (mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_SERVER, &milagro_p2p, (char *)"server@miracl.com") != 0)
+    {
+        mbedtls_printf("\n\nFailed while setting the identity in MILAGRO_P2P\n");
+        exit(-1);
+    }
+    mbedtls_free(p2p_server_key);
+    mbedtls_printf( " ok\n" );
+#endif /* MBEDTLS_MILAGRO_P2P_C */
     
     /*
      * 4. Wait until a client connects

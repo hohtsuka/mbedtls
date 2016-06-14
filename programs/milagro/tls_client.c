@@ -535,16 +535,24 @@ int main( int argc, char *argv[] )
         
         cs_client_key = calloc(2*PFS+1,sizeof(char));
         read_from_file("CSClientKey", cs_client_key, 2*(2*PFS+1));
-        mbedtls_milagro_cs_set_secret(&milagro_cs, cs_client_key, 2*PFS+1); mbedtls_free(cs_client_key);
-        mbedtls_milagro_cs_set_client_identity (&milagro_cs, (char *)DFL_CLIENT_IDENTITY);
-        
+        if (mbedtls_milagro_cs_set_secret(&milagro_cs, cs_client_key, 2*PFS+1) != 0)
+        {
+            
+            printf("\n\nFailed while setting the client's secret in MILAGRO_CS\n");
+            exit(-1);
+        }
+        if (mbedtls_milagro_cs_set_client_identity (&milagro_cs, (char *)DFL_CLIENT_IDENTITY) != 0)
+        {
+            printf("\n\nFailed while setting the client's identity in MILAGRO_CS\n");
+            exit(-1);
+        }
         if (mbedtls_milagro_cs_setup_RNG(&milagro_cs, &entropy) != 0)
         {
             printf("\n\nFailed while setting the RNG in MILAGRO_CS\n");
             exit(-1);
         }
         mbedtls_ssl_set_milagro_cs(ssl.handshake, &milagro_cs);
-        
+        mbedtls_free(cs_client_key);
         mbedtls_printf( " ok\n" );
     }
 #endif /* MBEDTLS_MILAGRO_CS_C */
@@ -561,7 +569,11 @@ int main( int argc, char *argv[] )
         
         read_from_file("P2PClientKey", p2p_client_key, 2*(4*PFS));
         
-        mbedtls_milagro_p2p_set_key(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, p2p_client_key, 4*PFS); mbedtls_free(p2p_client_key);
+        if (mbedtls_milagro_p2p_set_secret(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, p2p_client_key, 4*PFS) != 0)
+        {
+            printf("\n\nFailed while setting the secret in MILAGRO_P2P\n");
+            exit(-1);
+        }
         
         if (mbedtls_milagro_p2p_setup_RNG( &milagro_p2p, &entropy) != 0 )
         {
@@ -569,10 +581,14 @@ int main( int argc, char *argv[] )
             exit(-1);
         }
         
-        mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, (char *)DFL_CLIENT_IDENTITY);
+        if ( mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, (char *)DFL_CLIENT_IDENTITY) != 0)
+        {
+            printf("\n\nFailed while setting the identity in MILAGRO_P2P\n");
+            exit(-1);
+        }
         
         mbedtls_ssl_set_milagro_p2p(ssl.handshake, &milagro_p2p);
-        
+        mbedtls_free(p2p_client_key);
         mbedtls_printf( " ok\n" );
     }
 #endif /* MBEDTLS_MILAGRO_P2P_C */
@@ -716,7 +732,6 @@ close_notify:
     
     mbedtls_printf( " done\n" );
     
-    
     /*
      * Cleanup and exit
      */
@@ -729,7 +744,7 @@ exit:
         mbedtls_printf("Last error was: -0x%X - %s\n\n", -ret, error_buf );
     }
 #endif
-    
+
     mbedtls_net_free( &server_fd );
     mbedtls_ssl_session_free( &saved_session );
     mbedtls_ssl_free( &ssl );

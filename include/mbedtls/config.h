@@ -509,7 +509,7 @@
  *      MBEDTLS_TLS_MILAGRO_CS_WITH_3DES_EDE_CBC_SHA512
  *
  */
-//#define MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED
+#define MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED
@@ -823,7 +823,7 @@
  *
  * Comment this macro to disable support for autentication using MILAGRO_CS in TLS
  */
-//#define MBEDTLS_MILAGRO_CS_C
+#define MBEDTLS_MILAGRO_CS_C
 
 /**
  * \def MBEDTLS_MILAGRO_P2P_C
