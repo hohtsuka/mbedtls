@@ -46,7 +46,7 @@
 #if !defined(MBEDTLS_ENTROPY_C) || \
 !defined(MBEDTLS_SSL_TLS_C) || !defined(MBEDTLS_SSL_SRV_C) || \
 !defined(MBEDTLS_NET_C) || !defined(MBEDTLS_CTR_DRBG_C) || \
-!defined(MBEDTLS_MILAGRO_CS_C) || !defined(MBEDTLS_MILAGRO_P2P_C)
+(!defined(MBEDTLS_MILAGRO_CS_C) && !defined(MBEDTLS_MILAGRO_P2P_C))
 int main( void )
 {
     mbedtls_printf("MBEDTLS_ENTROPY_C and/or "
@@ -423,7 +423,6 @@ int main( int argc, char *argv[] )
     
     mbedtls_printf( " ok\n" );
     
-    
     /*
      * 2. Start the connection
      */
@@ -505,7 +504,6 @@ int main( int argc, char *argv[] )
     
     mbedtls_printf( " ok\n" );
     
-    
     ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
     got_milagro_cs_ciphersuite = 0;
     got_milagro_p2p_ciphersuite = 0;
@@ -525,31 +523,38 @@ int main( int argc, char *argv[] )
         }
     }
     
-
 #if defined(MBEDTLS_MILAGRO_CS_C)
     if(got_milagro_cs_ciphersuite>0)
     {
         /*
          * 3.5 Setup MILAGRO_CS parameters
          */
-    
+        
         mbedtls_printf( "  . Setting up MILAGRO_CS parameters..." );
         fflush( stdout );
-
+        
         cs_client_key = calloc(2*PFS+1,sizeof(char));
         read_from_file("CSClientKey", cs_client_key, 2*(2*PFS+1));
-        mbedtls_milagro_cs_set_secret(&milagro_cs, cs_client_key, 2*PFS+1); mbedtls_free(cs_client_key);
-        mbedtls_milagro_cs_set_client_identity (&milagro_cs, (char *)DFL_CLIENT_IDENTITY);
-    
+        if (mbedtls_milagro_cs_set_secret(&milagro_cs, cs_client_key, 2*PFS+1) != 0)
+        {
+            
+            printf("\n\nFailed while setting the client's secret in MILAGRO_CS\n");
+            exit(-1);
+        }
+        if (mbedtls_milagro_cs_set_client_identity (&milagro_cs, (char *)DFL_CLIENT_IDENTITY) != 0)
+        {
+            printf("\n\nFailed while setting the client's identity in MILAGRO_CS\n");
+            exit(-1);
+        }
         if (mbedtls_milagro_cs_setup_RNG(&milagro_cs, &entropy) != 0)
         {
             printf("\n\nFailed while setting the RNG in MILAGRO_CS\n");
             exit(-1);
         }
         mbedtls_ssl_set_milagro_cs(ssl.handshake, &milagro_cs);
-    
+        mbedtls_free(cs_client_key);
         mbedtls_printf( " ok\n" );
-        }
+    }
 #endif /* MBEDTLS_MILAGRO_CS_C */
     
 #if defined(MBEDTLS_MILAGRO_P2P_C)
@@ -559,27 +564,34 @@ int main( int argc, char *argv[] )
          * 3.5 Setup MILAGRO_P2P parameters
          */
         mbedtls_printf( "  . Setting up MILAGRO_P2P parameters..." );
-    
+        
         p2p_client_key = calloc(4*PFS, sizeof(char));
-    
+        
         read_from_file("P2PClientKey", p2p_client_key, 2*(4*PFS));
-    
-        mbedtls_milagro_p2p_set_key(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, p2p_client_key, 4*PFS); mbedtls_free(p2p_client_key);
-    
+        
+        if (mbedtls_milagro_p2p_set_secret(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, p2p_client_key, 4*PFS) != 0)
+        {
+            printf("\n\nFailed while setting the secret in MILAGRO_P2P\n");
+            exit(-1);
+        }
+        
         if (mbedtls_milagro_p2p_setup_RNG( &milagro_p2p, &entropy) != 0 )
         {
             printf("\n\nFailed while setting the RNG in MILAGRO_P2P\n");
             exit(-1);
         }
-    
-        mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, (char *)DFL_CLIENT_IDENTITY);
-
+        
+        if ( mbedtls_milagro_p2p_set_identity(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, (char *)DFL_CLIENT_IDENTITY) != 0)
+        {
+            printf("\n\nFailed while setting the identity in MILAGRO_P2P\n");
+            exit(-1);
+        }
+        
         mbedtls_ssl_set_milagro_p2p(ssl.handshake, &milagro_p2p);
-    
+        mbedtls_free(p2p_client_key);
         mbedtls_printf( " ok\n" );
     }
 #endif /* MBEDTLS_MILAGRO_P2P_C */
-    
     
     /*
      * 4. Handshake
@@ -720,7 +732,6 @@ close_notify:
     
     mbedtls_printf( " done\n" );
     
-    
     /*
      * Cleanup and exit
      */
@@ -733,7 +744,7 @@ exit:
         mbedtls_printf("Last error was: -0x%X - %s\n\n", -ret, error_buf );
     }
 #endif
-    
+
     mbedtls_net_free( &server_fd );
     mbedtls_ssl_session_free( &saved_session );
     mbedtls_ssl_free( &ssl );

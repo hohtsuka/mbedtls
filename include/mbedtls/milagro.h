@@ -58,6 +58,7 @@
 /*
  * Definition functions from milagro-crypto library
  */
+
 #define mbedtls_milagro_cs_today MPIN_today 
 #define mbedtls_milagro_cs_create_csprng MPIN_CREATE_CSPRNG
 #define mbedtls_milagro_cs_hash_id MPIN_HASH_ID
@@ -70,6 +71,8 @@
 #define mbedtls_milagro_cs_server_key MPIN_SERVER_KEY
 #define mbedtls_milagro_cs_precompute MPIN_PRECOMPUTE
 #define mbedtls_milagro_cs_client_key MPIN_CLIENT_KEY
+
+
 #define mbedtls_milagro_p2p_create_csprng WCC_CREATE_CSPRNG
 #define mbedtls_milagro_p2p_random_generate WCC_RANDOM_GENERATE
 #define mbedtls_milagro_p2p_get_g1_multiple WCC_GET_G1_MULTIPLE
@@ -175,13 +178,13 @@ void mbedtls_milagro_cs_init( struct mbedtls_milagro_cs_context * milagro_cs);
 
 
 /**
- * \brief           Set up the random number generator for the milagro_cs struct
+ * \brief               Set up the random number generator for the milagro_cs struct
  *
- * \note            the seed came from this library, the random generator
- *                  from the milagro-crypto library
+ * \note                the seed came from this library, the random generator
+ *                      from the milagro-crypto library
  *
- * \param milagro_cs      milagro_cs struct which contains the parameter RNG to be
- *                  set up
+ * \param milagro_cs    milagro_cs struct which contains the parameter RNG to be
+ *                      set up
  * \param entropy       entropy already initialized
  *
  */
@@ -189,33 +192,37 @@ int mbedtls_milagro_cs_setup_RNG( mbedtls_milagro_cs_context *milagro_cs, mbedtl
 
 
 /**
- * \brief           Set up the secret provided by the DTAs
+ * \brief                 Set up the secret provided by the DTAs
  *
  * \param milagro_cs      milagro_cs struct which contains the parameters
  *                        to be initialized
  * \param secret          secret to store
  * \param len_secret      length of the secret
  *
+  * \return               0 if successful, a negative error code otherwise
+ *
  */
-void mbedtls_milagro_cs_set_secret( mbedtls_milagro_cs_context *milagro_cs, char* secret, int len_secret);
+int mbedtls_milagro_cs_set_secret( mbedtls_milagro_cs_context *milagro_cs, char* secret, int len_secret);
 
 #if defined(MBEDTLS_SSL_CLI_C)
 /**
- * \brief           Set up the secret provided by the DTAs
+ * \brief                  Set up the secret provided by the DTAs
  *
- * \param milagro_cs      milagro_cs struct which contains the parameters
- *                        to be initialized
- * \param client_identity       the identity of the client
+ * \param milagro_cs       milagro_cs struct which contains the parameters
+ *                         to be initialized
+ * \param client_identity  the identity of the client
+ *
+ * \return                 0 if successful, a negative error code otherwise
  *
  */
-void mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_cs, char * client_identity);
+int mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_cs, char * client_identity);
 
 /**
- * \brief           Compute the shared secret at client's side
+ * \brief                   Compute the shared secret at client's side
  *
- * \param milagro_cs            Context to use
+ * \param milagro_cs        Context to use
  *
- * \return                      0 if successful, a negative error code otherwise
+ * \return                  0 if successful, a negative error code otherwise
  *
  */
 int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs);
@@ -227,9 +234,9 @@ int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs);
  *                 case of the client it computes also the public parameters to
  *                 be sent with the clientHello
  *
- * \param client_or_server 1 if server, 0 if client
- * \param milagro_cs      milagro_cs struct which contains the parameters
- *                  to be initialized
+ * \param client_or_server      1 if server, 0 if client
+ * \param milagro_cs            milagro_cs struct which contains the parameters
+ *                              to be initialized
  *
  */
 int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_context *milagro_cs);
@@ -378,8 +385,10 @@ void mbedtls_milagro_p2p_init( mbedtls_milagro_p2p_context * milagro_p2p);
  * \param key             sender/receiver key to store
  * \param len_key         length of the key
  *
+ * \return                0 if successful, error otherwise
+ *
  */
-void mbedtls_milagro_p2p_set_key(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p, char* key, int len_key);
+int mbedtls_milagro_p2p_set_secret(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p, char* key, int len_key);
 
 
 /**

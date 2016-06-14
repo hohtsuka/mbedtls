@@ -2,9 +2,8 @@
 #include "mbedtls/milagro.h"
 /* END_HEADER */
 
-/*
- * BEGIN_DEPENDENCIES
- * depends_on:MBEDTLS_MILAGRO_CS_C
+/* BEGIN_DEPENDENCIES
+ * depends_on:MBEDTLS_MILAGRO_CS_C:MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED
  * END_DEPENDENCIES
  */
 
@@ -31,23 +30,30 @@ void milagro_cs_do( char *client_identity, char *client_secret, char *server_sec
     cs_client_key = unhexify_alloc(client_secret,&len1);
     cs_server_key = unhexify_alloc(server_secret,&len2);
     
-    mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1);
-    mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS);
-    mbedtls_milagro_cs_set_client_identity (&milagro_cs_client, client_identity);
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1) == 0);
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS) == 0);
+    TEST_ASSERT( mbedtls_milagro_cs_set_client_identity (&milagro_cs_client, client_identity) == 0);
     
     /*
      * Setup random generator (fake entropy)
      */
-    
     SEED.len=32;
     for (i=0;i<32;i++) SEED.val[i]=i+1;
     mbedtls_milagro_cs_create_csprng(&milagro_cs_client.RNG,&SEED);
     mbedtls_milagro_cs_create_csprng(&milagro_cs_server.RNG,&SEED);
+
+    /*
+     * Chack if if the external value are well stored
+     */
+    TEST_ASSERT( mbedtls_milagro_cs_check(&milagro_cs_client) == 0);
+    TEST_ASSERT( mbedtls_milagro_cs_check(&milagro_cs_server) == 0);
+
     /*
      * Allocate memory and generation parameters from client's side
      */
     TEST_ASSERT( mbedtls_milagro_cs_alloc_memory(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_cs_client) == 0);
     TEST_ASSERT( mbedtls_milagro_cs_alloc_memory(MBEDTLS_MILAGRO_IS_SERVER, &milagro_cs_server) == 0);
+
     /*
      * Exchange parameters
      */
@@ -99,8 +105,6 @@ exit:
 }
 /* END_CASE */
 
-
-
 /* BEGIN_CASE */
 void milagro_cs_fail( char *client_identity, char *client_secret, char *server_secret )
 {
@@ -123,10 +127,10 @@ void milagro_cs_fail( char *client_identity, char *client_secret, char *server_s
      */
     cs_client_key = unhexify_alloc(client_secret,&len1);
     cs_server_key = unhexify_alloc(server_secret,&len2);
-    
-    mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1);
-    mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS);
-    mbedtls_milagro_cs_set_client_identity (&milagro_cs_client, client_identity);
+ 
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs_client, (char*)cs_client_key, 2*PFS+1) == 0);
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs_server, (char*)cs_server_key, 4*PFS) == 0);
+    TEST_ASSERT( mbedtls_milagro_cs_set_client_identity (&milagro_cs_client, client_identity) == 0);
     
     /*
      * Setup random generator (fake entropy)
@@ -135,11 +139,19 @@ void milagro_cs_fail( char *client_identity, char *client_secret, char *server_s
     for (i=0;i<32;i++) SEED.val[i]=i+1;
     mbedtls_milagro_cs_create_csprng(&milagro_cs_client.RNG,&SEED);
     mbedtls_milagro_cs_create_csprng(&milagro_cs_server.RNG,&SEED);
+
+    /*
+     * Chack if if the external value are well stored
+     */
+    TEST_ASSERT( mbedtls_milagro_cs_check(&milagro_cs_client) == 0);
+    TEST_ASSERT( mbedtls_milagro_cs_check(&milagro_cs_server) == 0);
+
     /*
      * Allocate memory and generation parameters from client's side
      */
     TEST_ASSERT( mbedtls_milagro_cs_alloc_memory(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_cs_client) == 0 );
     TEST_ASSERT( mbedtls_milagro_cs_alloc_memory(MBEDTLS_MILAGRO_IS_SERVER, &milagro_cs_server) == 0 );
+
     /*
      * Exchange parameters
      */
@@ -164,5 +176,25 @@ exit:
     mbedtls_milagro_cs_free( &milagro_cs_client );
     mbedtls_milagro_cs_free( &milagro_cs_server );
 }
+/* END_CASE */
 
+/* BEGIN_CASE */
+void milagro_cs_bad(char *identity, char *secret)
+{
+	size_t len;
+    mbedtls_milagro_cs_context milagro_cs;
+    mbedtls_milagro_cs_init(&milagro_cs);
+
+    unsigned char *cs_sec_key = unhexify_alloc(secret,&len);
+    
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(NULL, (char*)cs_sec_key, 2*PFS+1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs, NULL, 1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
+    TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs, (char*)cs_sec_key, -1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
+    TEST_ASSERT( mbedtls_milagro_cs_set_client_identity (&milagro_cs, NULL) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
+    TEST_ASSERT( mbedtls_milagro_cs_set_client_identity (NULL, identity) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
+    TEST_ASSERT( mbedtls_milagro_cs_check(&milagro_cs) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
+
+exit:
+    mbedtls_milagro_cs_free( &milagro_cs );
+}
 /* END_CASE */
