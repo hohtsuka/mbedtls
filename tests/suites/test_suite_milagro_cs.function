@@ -183,9 +183,10 @@ void milagro_cs_bad(char *identity, char *secret)
 {
 	size_t len;
     mbedtls_milagro_cs_context milagro_cs;
+    unsigned char *cs_sec_key;
+    
     mbedtls_milagro_cs_init(&milagro_cs);
-
-    unsigned char *cs_sec_key = unhexify_alloc(secret,&len);
+    cs_sec_key = unhexify_alloc(secret,&len);
     
     TEST_ASSERT( mbedtls_milagro_cs_set_secret(NULL, (char*)cs_sec_key, 2*PFS+1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     TEST_ASSERT( mbedtls_milagro_cs_set_secret(&milagro_cs, NULL, 1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);

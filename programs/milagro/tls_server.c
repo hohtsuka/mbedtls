@@ -289,9 +289,11 @@ int main( int argc, char *argv[] )
     mbedtls_ssl_config conf;
 #if defined(MBEDTLS_MILAGRO_CS_C)
     mbedtls_milagro_cs_context milagro_cs;
+    char *cs_server_key;
 #endif
 #if defined(MBEDTLS_MILAGRO_P2P_C)
     mbedtls_milagro_p2p_context milagro_p2p;
+    char *p2p_server_key;
 #endif
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
     unsigned char alloc_buf[100000];
@@ -532,7 +534,6 @@ reset:
      */
     printf( "  . Setting up MILAGRO_CS parameters..." );
     
-    char *cs_server_key;
     cs_server_key = calloc(4*PFS,sizeof(char));
     
     read_from_file("CSServerKey", cs_server_key, 2*(4*PFS));
@@ -559,8 +560,7 @@ reset:
      * 3 Setup MILAGRO_P2P parameters
      */
     mbedtls_printf( "  . Setting up MILAGRO_P2P parameters..." );
-    
-    char *p2p_server_key;
+
     p2p_server_key = calloc(2*PFS+1, sizeof(char));
     
     read_from_file("P2PServerKey", p2p_server_key, 2*(2*PFS+1));

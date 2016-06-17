@@ -101,9 +101,10 @@ void milagro_p2p_bad(char *identity, char *secret)
 {
 	size_t len;
     mbedtls_milagro_p2p_context milagro_p2p;
-    mbedtls_milagro_p2p_init(&milagro_p2p);
+    unsigned char *p2p_sec_key;
 
-    unsigned char *p2p_sec_key = unhexify_alloc(secret,&len);
+    mbedtls_milagro_p2p_init(&milagro_p2p);
+    p2p_sec_key = unhexify_alloc(secret,&len);
     
     TEST_ASSERT( mbedtls_milagro_p2p_set_secret(MBEDTLS_MILAGRO_IS_CLIENT, NULL, (char*)p2p_sec_key, 2*PFS+1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     TEST_ASSERT( mbedtls_milagro_p2p_set_secret(MBEDTLS_MILAGRO_IS_CLIENT, &milagro_p2p, NULL, 1) == MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
