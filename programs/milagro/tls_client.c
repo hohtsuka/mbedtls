@@ -169,7 +169,7 @@ struct options
 
 int read_from_file(const char* path, char* secret, int length_key){
     char hex[length_key];    
-    int tmp;
+    int tmp, ret;
     unsigned int i;
     FILE* file;
     file = fopen(path,"r");
@@ -180,7 +180,7 @@ int read_from_file(const char* path, char* secret, int length_key){
     }
 
     
-    if(fscanf(file,"%[^\n]",hex) != 0)
+    if((ret = fscanf(file,"%[^\n]",hex)) != 0)
     {
         printf("Error while scanning secret");
         exit(-1);
