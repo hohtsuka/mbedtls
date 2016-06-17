@@ -171,7 +171,8 @@ int read_from_file(const char* path, char* secret, int length_key){
     char hex[length_key];    
     int tmp;
     unsigned int i;
-    FILE* file = fopen(path,"r");
+    FILE* file;
+    file = fopen(path,"r");
     if(!file)
     {
         printf("Secret file is missing\n");
@@ -179,11 +180,15 @@ int read_from_file(const char* path, char* secret, int length_key){
     }
 
     
-    fscanf(file,"%[^\n]",hex);
-    fclose(file);
+    if(fscanf(file,"%[^\n]",hex) != 0)
+    {
+        printf("Error while scanning secret");
+        exit(-1);
+    }
+    (void)fclose(file);
 
     for (i = 0; i < strlen(hex)/2; i++){
-        sscanf(&hex[i * 2], "%02x", &tmp);
+        (void)sscanf(&hex[i * 2], "%02x", &tmp);
         secret[i] = tmp;
     }
     secret[(strlen(hex)/2)+1] = 0;
