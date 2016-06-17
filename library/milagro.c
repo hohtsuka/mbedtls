@@ -546,7 +546,7 @@ int mbedtls_milagro_p2p_setup_RNG( mbedtls_milagro_p2p_context *milagro_p2p, mbe
     }
     RAW.len=100;
     /* initialise strong RNG */
-    mbedtls_milagro_cs_create_csprng(&milagro_p2p->RNG,&RAW);
+    mbedtls_milagro_p2p_create_csprng(&milagro_p2p->RNG,&RAW);
     mbedtls_milagro_free_octet(&RAW);
     return 0;
 }
