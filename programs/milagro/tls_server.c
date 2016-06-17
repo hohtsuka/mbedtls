@@ -164,27 +164,30 @@ struct options
 } opt;
 
 
-int read_from_file(const char* path, char* secret, int len_secret){
-    char hex[len_secret];
-    int tmp=0;
-    unsigned int i=0;
-    FILE* file = fopen(path,"r");
+int read_from_file(const char* path, char* secret, int length_key){
+    char hex[length_key];
+    int tmp;
+    unsigned int i;
+    FILE* file;
+    file = fopen(path,"r");
     if(!file)
     {
         printf("Secret file is missing\n");
         exit(-1);
     }
-
     
-    fscanf(file,"%[^\n]",hex);
+    if(fscanf(file,"%[^\n]",hex) != 0)
+    {
+        printf("Error while scanning secret");
+        exit(-1);
+    }
     fclose(file);
-
+    
     for (i = 0; i < strlen(hex)/2; i++){
         sscanf(&hex[i * 2], "%02x", &tmp);
         secret[i] = tmp;
     }
     secret[(strlen(hex)/2)+1] = 0;
-    
     return 0;
 }
 
@@ -286,9 +289,11 @@ int main( int argc, char *argv[] )
     mbedtls_ssl_config conf;
 #if defined(MBEDTLS_MILAGRO_CS_C)
     mbedtls_milagro_cs_context milagro_cs;
+    char *cs_server_key;
 #endif
 #if defined(MBEDTLS_MILAGRO_P2P_C)
     mbedtls_milagro_p2p_context milagro_p2p;
+    char *p2p_server_key;
 #endif
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
     unsigned char alloc_buf[100000];
@@ -529,7 +534,6 @@ reset:
      */
     printf( "  . Setting up MILAGRO_CS parameters..." );
     
-    char *cs_server_key;
     cs_server_key = calloc(4*PFS,sizeof(char));
     
     read_from_file("CSServerKey", cs_server_key, 2*(4*PFS));
@@ -556,8 +560,7 @@ reset:
      * 3 Setup MILAGRO_P2P parameters
      */
     mbedtls_printf( "  . Setting up MILAGRO_P2P parameters..." );
-    
-    char *p2p_server_key;
+
     p2p_server_key = calloc(2*PFS+1, sizeof(char));
     
     read_from_file("P2PServerKey", p2p_server_key, 2*(2*PFS+1));

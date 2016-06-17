@@ -79,22 +79,22 @@ int mbedtls_milagro_cs_setup_RNG( mbedtls_milagro_cs_context *milagro_cs, mbedtl
     if (!(entropy && milagro_cs))
         return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     int i;
-    unsigned char seed[20] = {0};
-    char raw[100] = {0};
+    unsigned char seed[20];
     
-    octet RAW={0,sizeof(raw),raw};
+    octet RAW; memset(&RAW,0,sizeof(RAW));
+    RAW.val = mbedtls_milagro_calloc(100);
     
     for (i = 0; i<5; i++) {
         if (mbedtls_entropy_func(entropy, seed, 20) != 0)
         {
             return(MBEDTLS_ERR_ENTROPY_SOURCE_FAILED);
         }
-        RAW.len=100;
         memcpy(RAW.val+i*20,&seed,20);
     }
+    RAW.len=100;
     /* initialise strong RNG */
     mbedtls_milagro_cs_create_csprng(&milagro_cs->RNG,&RAW);
-    
+    mbedtls_milagro_free_octet(&RAW);
     return 0;
 }
 
@@ -528,25 +528,26 @@ int mbedtls_milagro_p2p_set_secret(int client_or_server, mbedtls_milagro_p2p_con
 
 int mbedtls_milagro_p2p_setup_RNG( mbedtls_milagro_p2p_context *milagro_p2p, mbedtls_entropy_context *entropy)
 {
-    if(!(milagro_p2p && entropy))
-        return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     int i;
-    unsigned char seed[20] = {0};
-    char raw[100] = {0};
+    unsigned char seed[20];
+    octet RAW;
+    if (!(entropy && milagro_p2p))
+        return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     
-    octet RAW={0,sizeof(raw),raw};
+    memset(&RAW,0,sizeof(RAW));
+    RAW.val = mbedtls_milagro_calloc(100);
     
     for (i = 0; i<5; i++) {
         if (mbedtls_entropy_func(entropy, seed, 20) != 0)
         {
             return(MBEDTLS_ERR_ENTROPY_SOURCE_FAILED);
         }
-        RAW.len=100;
         memcpy(RAW.val+i*20,&seed,20);
     }
+    RAW.len=100;
     /* initialise strong RNG */
     mbedtls_milagro_p2p_create_csprng(&milagro_p2p->RNG,&RAW);
-    
+    mbedtls_milagro_free_octet(&RAW);
     return 0;
 }
 
