@@ -2,7 +2,7 @@ language: c
 compiler:
 - clang
 - gcc
-sudo: false
+sudo: true
 cache: ccache
 
 branches:

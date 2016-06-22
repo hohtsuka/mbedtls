@@ -247,7 +247,7 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
  * \param milagro_cs        milagro_cs struct which contains the parameters
  *                          to be initialized
  *
- * \retun                   0 if the parameters are good, -1 otherwise
+ * \return                   0 if the parameters are good, -1 otherwise
  *
  */
 int mbedtls_milagro_cs_check(mbedtls_milagro_cs_context *milagro_cs );
@@ -271,7 +271,7 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
  * \param milagro_cs      milagro_cs struct in which the parameters has to be
  *                  stored
  *
- * \retun           0 if the reading finish well, -1 otherwise
+ * \return           0 if the reading finish well, -1 otherwise
  *
  */
 int mbedtls_milagro_cs_authenticate_client( mbedtls_milagro_cs_context *milagro_cs );
@@ -422,7 +422,7 @@ int mbedtls_milagro_p2p_setup_RNG( mbedtls_milagro_p2p_context *milagro_p2p, mbe
  * \param milagro_p2p        milagro_p2p struct which contains the parameters
  *                          to be initialized
  *
- * \retun                   0 if the parameters are good, -1 otherwise
+ * \return                   0 if the parameters are good, -1 otherwise
  *
  */
 int mbedtls_milagro_p2p_check(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p );
