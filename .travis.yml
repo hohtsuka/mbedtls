@@ -5,6 +5,10 @@ compiler:
 sudo: false
 cache: ccache
 
+branches:
+  only:
+    alessandro_dev
+
 before_install:
 - git clone https://github.com/miracl/milagro-crypto-c.git
 - mkdir -p milagro-crypto-c/release
