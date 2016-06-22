@@ -76,12 +76,13 @@ void mbedtls_milagro_cs_init( mbedtls_milagro_cs_context *milagro_cs)
 
 int mbedtls_milagro_cs_setup_RNG( mbedtls_milagro_cs_context *milagro_cs, mbedtls_entropy_context *entropy)
 {
-    if (!(entropy && milagro_cs))
-        return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     int i;
     unsigned char seed[20];
+    octet RAW;
+    if (!(entropy && milagro_cs))
+        return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
     
-    octet RAW; memset(&RAW,0,sizeof(RAW));
+    memset(&RAW,0,sizeof(RAW));
     RAW.val = mbedtls_milagro_calloc(100);
     
     for (i = 0; i<5; i++) {
