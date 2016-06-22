@@ -7,7 +7,7 @@ cache: ccache
 
 branches:
   only:
-    alessandro_dev
+    milagro
 
 before_install:
 - git clone https://github.com/miracl/milagro-crypto-c.git
