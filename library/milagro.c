@@ -68,13 +68,13 @@ void mbedtls_milagro_free_octet(octet *to_be_freed)
 
 #if defined(MBEDTLS_MILAGRO_CS_C)
 
-void mbedtls_milagro_cs_init( mbedtls_milagro_cs_context *milagro_cs)
+void mbedtls_milagro_cs_init(mbedtls_milagro_cs_context *milagro_cs)
 {
     memset(milagro_cs,0,sizeof(*milagro_cs));
 }
 
 
-int mbedtls_milagro_cs_setup_RNG( mbedtls_milagro_cs_context *milagro_cs, mbedtls_entropy_context *entropy)
+int mbedtls_milagro_cs_setup_RNG(mbedtls_milagro_cs_context *milagro_cs, mbedtls_entropy_context *entropy)
 {
     int i;
     unsigned char seed[20];
@@ -94,7 +94,7 @@ int mbedtls_milagro_cs_setup_RNG( mbedtls_milagro_cs_context *milagro_cs, mbedtl
     }
     RAW.len=100;
     /* initialise strong RNG */
-    mbedtls_milagro_cs_create_csprng(&milagro_cs->RNG,&RAW);
+    mbedtls_milagro_cs_create_csprng(&milagro_cs->RNG, &RAW);
     mbedtls_milagro_free_octet(&RAW);
     return 0;
 }
@@ -109,8 +109,8 @@ int mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_c
     milagro_cs->hash_client_id.max = PGS;
     milagro_cs->hash_client_id.len = PGS;
     memcpy(milagro_cs->client_identity.val, client_identity, strlen(client_identity));
-    milagro_cs->client_identity.len = (int)strlen(client_identity);
-    milagro_cs->client_identity.max = (int)strlen(client_identity);
+    milagro_cs->client_identity.len = (int) strlen(client_identity);
+    milagro_cs->client_identity.max = (int) strlen(client_identity);
     mbedtls_milagro_cs_hash_id(mbedtls_milagro_cs_hash_type_mpin, &milagro_cs->client_identity, &milagro_cs->hash_client_id);
     return 0;
 }
@@ -177,7 +177,7 @@ int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_con
     return 0;
 }
 
-int mbedtls_milagro_cs_check(mbedtls_milagro_cs_context *milagro_cs )
+int mbedtls_milagro_cs_check(mbedtls_milagro_cs_context *milagro_cs)
 {
     if (!milagro_cs)
         return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
@@ -192,7 +192,7 @@ int mbedtls_milagro_cs_check(mbedtls_milagro_cs_context *milagro_cs )
 
 #if defined(MBEDTLS_SSL_SRV_C)
 
-int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milagro_cs, const unsigned char *buf, size_t len )
+int mbedtls_milagro_cs_read_client_parameters(mbedtls_milagro_cs_context *milagro_cs, const unsigned char *buf, size_t len)
 {
     unsign32 client_time = 0;
     int32_t check_time = 0;
@@ -211,13 +211,13 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
     memcpy(milagro_cs->V.val, &buf[6+milagro_cs->hash_client_id.len+milagro_cs->U.len], milagro_cs->V.len);
     // Copy the timevalue
     client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->U.len+
-                                      milagro_cs->V.len  ] << 24 ));
+                                      milagro_cs->V.len  ] << 24));
     client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->U.len+
                                       milagro_cs->V.len+1] << 16));
     client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->U.len+
                                       milagro_cs->V.len+2] <<  8));
     client_time |= (UINT32_MAX & (buf[6+milagro_cs->hash_client_id.len+milagro_cs->U.len+
-                                      milagro_cs->V.len+3 ]      ));
+                                      milagro_cs->V.len+3 ]     ));
     check_time = client_time-milagro_cs->timevalue;
     
     if(abs(check_time)<=MILAGRO_CS_TV_DIFFERENCE)
@@ -233,7 +233,7 @@ int mbedtls_milagro_cs_read_client_parameters( mbedtls_milagro_cs_context *milag
 }
 
 
-int mbedtls_milagro_cs_authenticate_client( mbedtls_milagro_cs_context *milagro_cs )
+int mbedtls_milagro_cs_authenticate_client(mbedtls_milagro_cs_context *milagro_cs)
 {
     int ret = 0;
     if ( mbedtls_milagro_cs_server(mbedtls_milagro_cs_hash_type_mpin,
@@ -284,8 +284,8 @@ int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
 
 #endif /* MBEDTLS_SSL_SRV_C */
 
-int mbedtls_milagro_cs_write_exchange_parameter( int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
-                                          unsigned char *buf, size_t len, size_t *ec_point_len )
+int mbedtls_milagro_cs_write_exchange_parameter(int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
+                                          unsigned char *buf, size_t len, size_t *ec_point_len)
 {
     int ret;
     unsigned char *p = buf;
@@ -332,8 +332,8 @@ int mbedtls_milagro_cs_write_exchange_parameter( int client_or_server, mbedtls_m
     return 0;
 }
 
-int mbedtls_milagro_cs_read_public_parameter( int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
-                                       const unsigned char *buf, size_t len  )
+int mbedtls_milagro_cs_read_public_parameter(int client_or_server, mbedtls_milagro_cs_context *milagro_cs,
+                                             const unsigned char *buf, size_t len)
 {
     if(client_or_server == MBEDTLS_MILAGRO_IS_CLIENT)
     {
@@ -533,7 +533,7 @@ int mbedtls_milagro_p2p_set_secret(int client_or_server, mbedtls_milagro_p2p_con
 }
 
 
-int mbedtls_milagro_p2p_setup_RNG( mbedtls_milagro_p2p_context *milagro_p2p, mbedtls_entropy_context *entropy)
+int mbedtls_milagro_p2p_setup_RNG(mbedtls_milagro_p2p_context *milagro_p2p, mbedtls_entropy_context *entropy)
 {
     int i;
     unsigned char seed[20];
@@ -559,7 +559,7 @@ int mbedtls_milagro_p2p_setup_RNG( mbedtls_milagro_p2p_context *milagro_p2p, mbe
 }
 
 
-int mbedtls_milagro_p2p_check(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p )
+int mbedtls_milagro_p2p_check(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p)
 {
     if (!milagro_p2p)
         return (MBEDTLS_ERR_MILAGRO_BAD_PARAMETERS);
@@ -581,7 +581,7 @@ int mbedtls_milagro_p2p_check(int client_or_server, mbedtls_milagro_p2p_context 
 }
 
 
-int mbedtls_milagro_p2p_compute_public_param( mbedtls_milagro_p2p_context *milagro_p2p)
+int mbedtls_milagro_p2p_compute_public_param(mbedtls_milagro_p2p_context *milagro_p2p)
 {
     mbedtls_milagro_p2p_alloc_memory(MBEDTLS_MILAGRO_IS_SERVER, milagro_p2p);
     
@@ -600,7 +600,7 @@ int mbedtls_milagro_p2p_compute_public_param( mbedtls_milagro_p2p_context *milag
 
 
 int mbedtls_milagro_p2p_write_public_parameters(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p,
-                                                unsigned char *buf, size_t len, size_t *param_len )
+                                                unsigned char *buf, size_t len, size_t *param_len)
 {
     unsigned char *p = buf;
     const unsigned char *end = buf + len;
@@ -650,8 +650,8 @@ int mbedtls_milagro_p2p_write_public_parameters(int client_or_server, mbedtls_mi
 }
 
 
-int mbedtls_milagro_p2p_read_public_parameters( int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p,
-                                               const unsigned char *buf, size_t len  )
+int mbedtls_milagro_p2p_read_public_parameters(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p,
+                                               const unsigned char *buf, size_t len)
 {
     if (client_or_server == MBEDTLS_MILAGRO_IS_CLIENT)
     {
