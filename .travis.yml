@@ -9,7 +9,7 @@ branches:
   only:
     milagro
 
-before_install:
+script:
 - git clone https://github.com/miracl/milagro-crypto-c.git
 - mkdir -p milagro-crypto-c/release
 - cd milagro-crypto-c/release
@@ -18,8 +18,6 @@ before_install:
 - make test
 - sudo make install
 - cd ../..
-
-script:
 - tests/scripts/recursion.pl library/*.c
 - tests/scripts/check-generated-files.sh
 - tests/scripts/check-doxy-blocks.pl
