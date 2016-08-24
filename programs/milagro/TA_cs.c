@@ -33,6 +33,7 @@
 #include "mpin.h"
 #include "mbedtls/milagro.h"
 
+
 #define mbedtls_milagro_cs_extract_pin MPIN_EXTRACT_PIN
 #define mbedtls_milagro_cs_random_generate MPIN_RANDOM_GENERATE
 #define mbedtls_milagro_cs_get_server_secret MPIN_GET_SERVER_SECRET
@@ -103,7 +104,8 @@ int main(){
     OCT_jstring(&CLIENT_ID, (char*)user);
     
     /* Hash CLIENT_ID */
-    mbedtls_milagro_cs_hash_id(&CLIENT_ID,&HASH_ID);
+    mbedtls_milagro_cs_hash_id(mbedtls_milagro_cs_hash_type_mpin,
+                               &CLIENT_ID, &HASH_ID);
     
     /* master secret */
     rtn = mbedtls_milagro_cs_random_generate(&RNG,&MS1);
@@ -133,7 +135,8 @@ int main(){
     printf("Client Secret = 0x");
     OCT_output(&TOKEN);
 
-    rtn = mbedtls_milagro_cs_extract_pin(&HASH_ID, PIN, &TOKEN);
+    rtn = mbedtls_milagro_cs_extract_pin(mbedtls_milagro_cs_hash_type_mpin,
+                                         &HASH_ID, PIN, &TOKEN);
     if (rtn != 0)
     {
         printf("mbedtls_milagro_cs_extract_pin( &HASH_ID, PIN, &TOKEN) Error %d\n", rtn);

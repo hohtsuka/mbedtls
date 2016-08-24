@@ -180,7 +180,7 @@ int read_from_file(const char* path, char* secret, int length_key){
     }
 
     
-    if((ret = fscanf(file,"%[^\n]",hex)) != 0)
+    if((ret = fscanf(file,"%[^\n]",hex)) != 1)
     {
         printf("Error while scanning secret");
         exit(-1);

@@ -38,6 +38,7 @@
 #define mbedtls_milagro_p2p_get_g2_multiple WCC_GET_G2_MULTIPLE
 #define mbedtls_milagro_p2p_kill_csprng WCC_KILL_CSPRNG
 #define mbedtls_milagro_p2p_hash_id WCC_HASH_ID
+#define mbedtls_milagro_p2p_hash_type_wcc HASH_TYPE_WCC
 
 int write_to_file(const char * path, octet to_write)
 {
@@ -112,8 +113,9 @@ int main()
     OCT_jstring(&IdS,(char *)"server@miracl.com");
     
     // TA: Generate Servers's key
-    mbedtls_milagro_p2p_hash_id(&IdS,&HV);
-    rtn = mbedtls_milagro_p2p_get_g1_multiple(hashDoneOn,&MS,&HV,&SkeyG1);
+    mbedtls_milagro_p2p_hash_id(mbedtls_milagro_p2p_hash_type_wcc,
+                                &IdS, &HV);
+    rtn = mbedtls_milagro_p2p_get_g1_multiple(mbedtls_milagro_p2p_hash_type_wcc, hashDoneOn, &MS, &HV, &SkeyG1);
     if (rtn != 0) {
         printf("TA mbedtls_milagro_p2p_get_g1_multiple() Error %d\n", rtn);
         return 1;
@@ -127,8 +129,8 @@ int main()
     OCT_jstring(&IdC,(char *)"client@miracl.com");
     
     // TA: Generate Client's key
-    mbedtls_milagro_p2p_hash_id(&IdC,&HV);
-    rtn = mbedtls_milagro_p2p_get_g2_multiple(hashDoneOn,&MS,&HV,&CkeyG2);
+    mbedtls_milagro_p2p_hash_id(mbedtls_milagro_p2p_hash_type_wcc, &IdC, &HV);
+    rtn = mbedtls_milagro_p2p_get_g2_multiple(mbedtls_milagro_p2p_hash_type_wcc, hashDoneOn,&MS,&HV,&CkeyG2);
     if (rtn != 0) {
         printf("TA mbedtls_milagro_p2p_get_g2_multiple() Error %d\n", rtn);
         return 1;

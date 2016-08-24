@@ -71,6 +71,7 @@
 #define mbedtls_milagro_cs_server_key MPIN_SERVER_KEY
 #define mbedtls_milagro_cs_precompute MPIN_PRECOMPUTE
 #define mbedtls_milagro_cs_client_key MPIN_CLIENT_KEY
+#define mbedtls_milagro_cs_hash_type_mpin HASH_TYPE_MPIN
 
 
 #define mbedtls_milagro_p2p_create_csprng WCC_CREATE_CSPRNG
@@ -81,6 +82,7 @@
 #define mbedtls_milagro_p2p_hq WCC_Hq
 #define mbedtls_milagro_p2p_sender_key WCC_SENDER_KEY
 #define mbedtls_milagro_p2p_receiver_key WCC_RECEIVER_KEY
+#define mbedtls_milagro_p2p_hash_type_wcc HASH_TYPE_WCC
 
 
 /*
