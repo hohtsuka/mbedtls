@@ -17,6 +17,7 @@ If not, then you can download it from www.cmake.org
 <h2>Compiling mpin-crypto-c</h2>
 
 <ol type="disc">
+# clone milagro-crypto-c, pay attention on cloning the develop branch
  <li>git clone https://github.com/miracl/milagro-crypto-c.git</li>
  <li>cd milagro-crypto-c</li>
  <li>mkdir release</li>
