@@ -16,28 +16,25 @@ If not, then you can download it from www.cmake.org
 
 <h2>Compiling mpin-crypto-c</h2>
 
-<ol type="disc">
- <li>git clone https://github.com/miracl/milagro-crypto-c.git</li>
- <li>cd milagro-crypto-c</li>
- <li>mkdir release</li>
- <li>cd release</li>
- <li>cmake -D CMAKE_INSTALL_PREFIX=/opt/amcl -D USE_ANONYMOUS=on -D WORD_LENGTH=64 -D BUILD_WCC=on  -D BUILD_MPIN=on  ..</li>
- <li>make</li>
- <li>make test</li>
- <li>sudo make install</li>
-</ol>
+- git clone https://github.com/miracl/milagro-crypto-c.git
+- cd milagro-crypto-c
+- git checkout develop
+- mkdir release
+- cd release
+- cmake -D CMAKE_INSTALL_PREFIX=/opt/amcl -D USE_ANONYMOUS=on -D WORD_LENGTH=64 -D BUILD_WCC=on  -D BUILD_MPIN=on  ..
+- make
+- make test
+- sudo make install
+
 
 <h2>Compiling mbedtls</h2>
 
-<ol type="disc">
-  <li>git clone https://github.com/miracl/mbedtls.git</li>
-  <li>cd mtls</li>
-  <li>mkdir release</li>
-  <li>cd release</li>
-  <li>cmake -D AMCL_INSTALL_DIR=/opt/amcl ..</li>
-  <li>make</li>
-  <li>make test</li>
-  <li>sudo make install</li>
-</ol>
-
+- git clone https://github.com/miracl/mbedtls.git
+- cd mtls
+- mkdir release
+- cd release
+- cmake -D AMCL_INSTALL_DIR=/opt/amcl ..
+- make
+- make test
+- sudo make install
 
