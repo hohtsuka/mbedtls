@@ -70,7 +70,7 @@ int main(){
     octet MS1={sizeof(ms1),sizeof(ms1),ms1};
     
     /* Client Identity and its hash */
-    char client_id[100], hash_id[HASH_BYTES];
+    char client_id[100], hash_id[PFS];
     octet CLIENT_ID={0,sizeof(client_id),client_id};
     octet HASH_ID={0,sizeof(hash_id),hash_id};
     
