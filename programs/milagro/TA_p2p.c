@@ -67,7 +67,7 @@ int main()
     char ms[PGS];
     octet MS={sizeof(ms),sizeof(ms),ms};
     
-    char hv[HASH_BYTES],server_id[256],client_id[256];
+    char hv[HASH_TYPE_WCC],server_id[256],client_id[256];
     octet HV={0,sizeof(hv),hv};
     
     octet IdS={0,sizeof(server_id),server_id};
