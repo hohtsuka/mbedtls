@@ -71,6 +71,7 @@ int main(){
     
     /* Client Identity and its hash */
     char client_id[100], hash_id[mbedtls_milagro_cs_hash_type_mpin];
+  
     octet CLIENT_ID={0,sizeof(client_id),client_id};
     octet HASH_ID={0,sizeof(hash_id),hash_id};
     
