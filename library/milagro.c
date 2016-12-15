@@ -1,4 +1,3 @@
-
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -73,7 +72,6 @@ void mbedtls_milagro_cs_init(mbedtls_milagro_cs_context *milagro_cs)
     memset(milagro_cs,0,sizeof(*milagro_cs));
 }
 
-
 int mbedtls_milagro_cs_setup_RNG(mbedtls_milagro_cs_context *milagro_cs, mbedtls_entropy_context *entropy)
 {
     int i;
@@ -99,7 +97,6 @@ int mbedtls_milagro_cs_setup_RNG(mbedtls_milagro_cs_context *milagro_cs, mbedtls
     return 0;
 }
 
-
 int mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_cs, char * client_identity)
 {
     if (!(client_identity && milagro_cs))
@@ -115,7 +112,6 @@ int mbedtls_milagro_cs_set_client_identity(mbedtls_milagro_cs_context *milagro_c
     return 0;
 }
 
-
 int mbedtls_milagro_cs_set_secret(mbedtls_milagro_cs_context *milagro_cs, char* secret, int len_secret)
 {
     if (!(secret && milagro_cs) || len_secret <= 0)
@@ -126,8 +122,6 @@ int mbedtls_milagro_cs_set_secret(mbedtls_milagro_cs_context *milagro_cs, char* 
     return 0;
 }
 
-
-        
 int mbedtls_milagro_cs_alloc_memory(int client_or_server, mbedtls_milagro_cs_context *milagro_cs)
 {
     if (!milagro_cs)
@@ -232,7 +226,6 @@ int mbedtls_milagro_cs_read_client_parameters(mbedtls_milagro_cs_context *milagr
     return 0;
 }
 
-
 int mbedtls_milagro_cs_authenticate_client(mbedtls_milagro_cs_context *milagro_cs)
 {
     int ret = 0;
@@ -278,7 +271,6 @@ int mbedtls_milagro_cs_share_secret_srv(mbedtls_milagro_cs_context *milagro_cs)
     {
         return (MBEDTLS_ERR_MILAGRO_CS_KEY_COMPUTATOIN_FAILED);
     }
-    
     return 0;
 }
 
@@ -329,6 +321,7 @@ int mbedtls_milagro_cs_write_exchange_parameter(int client_or_server, mbedtls_mi
     }
     
     *ec_point_len = p - buf;
+
     return 0;
 }
 
@@ -362,11 +355,12 @@ int mbedtls_milagro_cs_read_public_parameter(int client_or_server, mbedtls_milag
     }
     else
         return(MBEDTLS_ERR_MILAGRO_BAD_INPUT);
-    
+
     return 0;
 }
 
 #if defined(MBEDTLS_SSL_CLI_C)
+
 int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs)
 {
     int ret = 0;
@@ -401,7 +395,6 @@ int mbedtls_milagro_cs_share_secret_cli(mbedtls_milagro_cs_context *milagro_cs)
         return (MBEDTLS_ERR_MILAGRO_CS_KEY_COMPUTATOIN_FAILED);
     }
 
-    
     return 0;
 }
 #endif /* MBEDTLS_SSL_CLI_C */
@@ -432,7 +425,6 @@ void mbedtls_milagro_cs_free( mbedtls_milagro_cs_context *milagro_cs)
 #endif /* MBEDTLS_MILAGRO_CS_C */
 
 #if defined(MBEDTLS_MILAGRO_P2P_C)
-
 
 int mbedtls_milagro_p2p_alloc_memory(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p)
 {
@@ -470,13 +462,10 @@ int mbedtls_milagro_p2p_alloc_memory(int client_or_server, mbedtls_milagro_p2p_c
     return 0;
 }
 
-
-
 void mbedtls_milagro_p2p_init(mbedtls_milagro_p2p_context * milagro_p2p)
 {
     memset(milagro_p2p,0,sizeof(*milagro_p2p));
 }
-
 
 int mbedtls_milagro_p2p_set_identity(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p, char * identity)
 {
@@ -505,7 +494,6 @@ int mbedtls_milagro_p2p_set_identity(int client_or_server, mbedtls_milagro_p2p_c
     return 0;
 }
 
-
 int mbedtls_milagro_p2p_set_secret(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p, char* key, int len_key)
 {
     if (!(milagro_p2p && key) || len_key <= 0)
@@ -532,7 +520,6 @@ int mbedtls_milagro_p2p_set_secret(int client_or_server, mbedtls_milagro_p2p_con
     return 0;
 }
 
-
 int mbedtls_milagro_p2p_setup_RNG(mbedtls_milagro_p2p_context *milagro_p2p, mbedtls_entropy_context *entropy)
 {
     int i;
@@ -558,7 +545,6 @@ int mbedtls_milagro_p2p_setup_RNG(mbedtls_milagro_p2p_context *milagro_p2p, mbed
     return 0;
 }
 
-
 int mbedtls_milagro_p2p_check(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p)
 {
     if (!milagro_p2p)
@@ -580,7 +566,6 @@ int mbedtls_milagro_p2p_check(int client_or_server, mbedtls_milagro_p2p_context 
     return 0;
 }
 
-
 int mbedtls_milagro_p2p_compute_public_param(mbedtls_milagro_p2p_context *milagro_p2p)
 {
     mbedtls_milagro_p2p_alloc_memory(MBEDTLS_MILAGRO_IS_SERVER, milagro_p2p);
@@ -597,7 +582,6 @@ int mbedtls_milagro_p2p_compute_public_param(mbedtls_milagro_p2p_context *milagr
     }
     return 0;
 }
-
 
 int mbedtls_milagro_p2p_write_public_parameters(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p,
                                                 unsigned char *buf, size_t len, size_t *param_len)
@@ -648,7 +632,6 @@ int mbedtls_milagro_p2p_write_public_parameters(int client_or_server, mbedtls_mi
     
     return 0;
 }
-
 
 int mbedtls_milagro_p2p_read_public_parameters(int client_or_server, mbedtls_milagro_p2p_context *milagro_p2p,
                                                const unsigned char *buf, size_t len)
