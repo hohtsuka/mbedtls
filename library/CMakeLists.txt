@@ -92,7 +92,7 @@ endif(CMAKE_COMPILER_IS_CLANG)
 
 if(ENABLE_MILAGRO_SUPPORT)
     set(src_tls ${src_tls} milagro.c)
-    set(libs ${libs} mpin wcc)
+    set(libs ${libs} amcl_core amcl_curve amcl_pairing amcl_mpin amcl_wcc)
 endif(ENABLE_MILAGRO_SUPPORT)
 
 if(WIN32)
