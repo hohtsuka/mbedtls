@@ -34,7 +34,6 @@
 #include "mbedtls/milagro.h"
 
 
-#define mbedtls_milagro_cs_extract_pin MPIN_EXTRACT_PIN
 #define mbedtls_milagro_cs_random_generate MPIN_RANDOM_GENERATE
 #define mbedtls_milagro_cs_get_server_secret MPIN_GET_SERVER_SECRET
 #define mbedtls_milagro_cs_get_client_secret MPIN_GET_CLIENT_SECRET
@@ -61,7 +60,7 @@ int write_to_file(const char * path, octet to_write)
 
 int main(){
     
-    int rtn, i, PIN = 0;
+    int rtn, i;
 
     const char* user;
     
@@ -134,16 +133,6 @@ int main(){
         return 1;
     }
     printf("Client Secret = 0x");
-    OCT_output(&TOKEN);
-
-    rtn = mbedtls_milagro_cs_extract_pin(mbedtls_milagro_cs_hash_type_mpin,
-                                         &HASH_ID, PIN, &TOKEN);
-    if (rtn != 0)
-    {
-        printf("mbedtls_milagro_cs_extract_pin( &HASH_ID, PIN, &TOKEN) Error %d\n", rtn);
-        return 1;
-    }
-    printf("\nToken = 0x");
     OCT_output(&TOKEN);
     
     write_to_file("CSServerKey", ServerSecret);
