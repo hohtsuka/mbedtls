@@ -158,7 +158,7 @@ void mbedtls_md2_update( mbedtls_md2_context *ctx, const unsigned char *input, s
 
     while( ilen > 0 )
     {
-        if( ilen > 16 - ctx->left )
+        if( ctx->left + ilen > 16 )
             fill = 16 - ctx->left;
         else
             fill = ilen;

@@ -710,9 +710,9 @@ exit:
  * AES-ECB block encryption
  */
 #if !defined(MBEDTLS_AES_ENCRYPT_ALT)
-int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
-                                  const unsigned char input[16],
-                                  unsigned char output[16] )
+void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
+                          const unsigned char input[16],
+                          unsigned char output[16] )
 {
     int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
@@ -760,8 +760,6 @@ int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
     PUT_UINT32_LE( X1, output,  4 );
     PUT_UINT32_LE( X2, output,  8 );
     PUT_UINT32_LE( X3, output, 12 );
-
-    return( 0 );
 }
 #endif /* !MBEDTLS_AES_ENCRYPT_ALT */
 
@@ -769,9 +767,9 @@ int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
  * AES-ECB block decryption
  */
 #if !defined(MBEDTLS_AES_DECRYPT_ALT)
-int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
-                                  const unsigned char input[16],
-                                  unsigned char output[16] )
+void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
+                          const unsigned char input[16],
+                          unsigned char output[16] )
 {
     int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
@@ -819,8 +817,6 @@ int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
     PUT_UINT32_LE( X1, output,  4 );
     PUT_UINT32_LE( X2, output,  8 );
     PUT_UINT32_LE( X3, output, 12 );
-
-    return( 0 );
 }
 #endif /* !MBEDTLS_AES_DECRYPT_ALT */
 
@@ -850,9 +846,11 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
 #endif
 
     if( mode == MBEDTLS_AES_ENCRYPT )
-        return( mbedtls_internal_aes_encrypt( ctx, input, output ) );
+        mbedtls_aes_encrypt( ctx, input, output );
     else
-        return( mbedtls_internal_aes_decrypt( ctx, input, output ) );
+        mbedtls_aes_decrypt( ctx, input, output );
+
+    return( 0 );
 }
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
@@ -1224,9 +1222,7 @@ int mbedtls_aes_self_test( int verbose )
     int ret = 0, i, j, u, v;
     unsigned char key[32];
     unsigned char buf[64];
-#if defined(MBEDTLS_CIPHER_MODE_CBC) || defined(MBEDTLS_CIPHER_MODE_CFB)
     unsigned char iv[16];
-#endif
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
     unsigned char prv[16];
 #endif

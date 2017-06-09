@@ -40,11 +40,10 @@ static void threading_mutex_init_pthread( mbedtls_threading_mutex_t *mutex )
 
 static void threading_mutex_free_pthread( mbedtls_threading_mutex_t *mutex )
 {
-    if( mutex == NULL || !mutex->is_valid )
+    if( mutex == NULL )
         return;
 
     (void) pthread_mutex_destroy( &mutex->mutex );
-    mutex->is_valid = 0;
 }
 
 static int threading_mutex_lock_pthread( mbedtls_threading_mutex_t *mutex )
@@ -113,9 +112,6 @@ void mbedtls_threading_set_alt( void (*mutex_init)( mbedtls_threading_mutex_t * 
 
     mbedtls_mutex_init( &mbedtls_threading_readdir_mutex );
     mbedtls_mutex_init( &mbedtls_threading_gmtime_mutex );
-#if defined(MBEDTLS_ECP_INTERNAL_ALT)
-    mbedtls_mutex_init( &mbedtls_threading_ecp_mutex );
-#endif
 }
 
 /*
@@ -125,9 +121,6 @@ void mbedtls_threading_free_alt( void )
 {
     mbedtls_mutex_free( &mbedtls_threading_readdir_mutex );
     mbedtls_mutex_free( &mbedtls_threading_gmtime_mutex );
-#if defined(MBEDTLS_ECP_INTERNAL_ALT)
-    mbedtls_mutex_free( &mbedtls_threading_ecp_mutex );
-#endif
 }
 #endif /* MBEDTLS_THREADING_ALT */
 
@@ -139,8 +132,5 @@ void mbedtls_threading_free_alt( void )
 #endif
 mbedtls_threading_mutex_t mbedtls_threading_readdir_mutex MUTEX_INIT;
 mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex MUTEX_INIT;
-#if defined(MBEDTLS_ECP_INTERNAL_ALT)
-mbedtls_threading_mutex_t mbedtls_threading_ecp_mutex MUTEX_INIT;
-#endif
 
 #endif /* MBEDTLS_THREADING_C */

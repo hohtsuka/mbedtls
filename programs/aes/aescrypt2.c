@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
 {
     int ret = 1;
 
-    unsigned int i, n;
+    int i, n;
     int mode, lastn;
     size_t keylen;
     FILE *fkey, *fin = NULL, *fout = NULL;

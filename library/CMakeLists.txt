@@ -15,7 +15,6 @@ set(src_crypto
     ccm.c
     cipher.c
     cipher_wrap.c
-    cmac.c
     ctr_drbg.c
     des.c
     dhm.c
@@ -72,7 +71,7 @@ set(src_x509
 
 set(src_tls
     debug.c
-    net_sockets.c
+    net.c
     ssl_cache.c
     ssl_ciphersuites.c
     ssl_cli.c
@@ -89,11 +88,6 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 if(CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code")
 endif(CMAKE_COMPILER_IS_CLANG)
-
-if(ENABLE_MILAGRO_SUPPORT)
-    set(src_tls ${src_tls} milagro.c)
-    set(libs ${libs} amcl_core amcl_curve amcl_pairing amcl_mpin amcl_wcc)
-endif(ENABLE_MILAGRO_SUPPORT)
 
 if(WIN32)
     set(libs ${libs} ws2_32)
@@ -145,15 +139,15 @@ endif(USE_STATIC_MBEDTLS_LIBRARY)
 
 if(USE_SHARED_MBEDTLS_LIBRARY)
     add_library(mbedcrypto SHARED ${src_crypto})
-    set_target_properties(mbedcrypto PROPERTIES VERSION 2.5.0 SOVERSION 0)
+    set_target_properties(mbedcrypto PROPERTIES VERSION 2.2.1 SOVERSION 0)
     target_link_libraries(mbedcrypto ${libs})
 
     add_library(mbedx509 SHARED ${src_x509})
-    set_target_properties(mbedx509 PROPERTIES VERSION 2.5.0 SOVERSION 0)
+    set_target_properties(mbedx509 PROPERTIES VERSION 2.2.1 SOVERSION 0)
     target_link_libraries(mbedx509 ${libs} mbedcrypto)
 
     add_library(mbedtls SHARED ${src_tls})
-    set_target_properties(mbedtls PROPERTIES VERSION 2.5.0 SOVERSION 10)
+    set_target_properties(mbedtls PROPERTIES VERSION 2.2.1 SOVERSION 10)
     target_link_libraries(mbedtls ${libs} mbedx509)
 
     install(TARGETS mbedtls mbedx509 mbedcrypto

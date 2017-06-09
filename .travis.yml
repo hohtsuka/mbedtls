@@ -2,22 +2,9 @@ language: c
 compiler:
 - clang
 - gcc
-sudo: true
+sudo: false
 cache: ccache
-
-branches:
-  only:
-    milagro
-
 script:
-- git clone https://github.com/miracl/milagro-crypto-c.git
-- mkdir -p milagro-crypto-c/release
-- cd milagro-crypto-c/release
-- cmake -D WORD_LENGTH=64 -D USE_ANONYMOUS=on -D BUILD_WCC=on ..
-- make
-- make test
-- sudo make install
-- cd ../..
 - tests/scripts/recursion.pl library/*.c
 - tests/scripts/check-generated-files.sh
 - tests/scripts/check-doxy-blocks.pl
@@ -45,8 +32,8 @@ addons:
     - graphviz
   coverity_scan:
     project:
-      name: "milagro/mbedtls"
-    notification_email: alessandro.budroni@miracl.com
+      name: "ARMmbed/mbedtls"
+    notification_email: p.j.bakker@polarssl.org
     build_command_prepend:
     build_command: make
     branch_pattern: coverity_scan

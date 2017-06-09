@@ -19,10 +19,6 @@ my @directories = qw(include/mbedtls library doxygen/input);
 # everything with a backslach except '\0' and backslash at EOL
 my $doxy_re = qr/\\(?!0|\n)/;
 
-# Return an error code to the environment if a potential error in the
-# source code is found.
-my $exit_code = 0;
-
 sub check_file {
     my ($fname) = @_;
     open my $fh, '<', $fname or die "Failed to open '$fname': $!\n";
@@ -36,7 +32,6 @@ sub check_file {
         if ($block_start and $line =~ m/$doxy_re/) {
             print "$fname:$block_start: directive on line $.\n";
             $block_start = 0; # report only one directive per block
-            $exit_code = 1;
         }
     }
 
@@ -50,15 +45,13 @@ sub check_dir {
     }
 }
 
-# Check that the script is being run from the project's root directory.
-for my $dir (@directories) {
-    if (! -d $dir) {
-        die "This script must be run from the mbed TLS root directory";
-    } else {
-        check_dir($dir)
-    }
-}
+# locate root directory based on invocation name
+my $root = dirname($0) . '/..';
+chdir $root or die "Can't chdir to '$root': $!\n";
 
-exit $exit_code;
+# just do it
+for my $dir (@directories) {
+    check_dir($dir)
+}
 
 __END__

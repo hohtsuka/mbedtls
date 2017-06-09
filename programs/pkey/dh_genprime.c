@@ -29,7 +29,6 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdio.h>
-#include <stdlib.h>
 #define mbedtls_printf     printf
 #define mbedtls_time_t     time_t
 #endif
