@@ -231,6 +231,20 @@ extern "C" {
 
 #define MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8          0xC0FF  /**< experimental */
 
+#define MBEDTLS_TLS_MILAGRO_CS_WITH_AES_128_GCM_SHA256       0xC0B1  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_CS_WITH_AES_128_GCM_SHA512       0xC0B2  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_CS_WITH_CAMELLIA_128_GCM_SHA256  0xC0B3  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_CS_WITH_CAMELLIA_128_GCM_SHA512  0xC0B4  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_CS_WITH_3DES_EDE_CBC_SHA256      0xC0B5  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_CS_WITH_3DES_EDE_CBC_SHA512      0xC0B6  /**< TLS 1.2, experimental */
+    
+#define MBEDTLS_TLS_MILAGRO_P2P_WITH_AES_128_GCM_SHA256      0xC0B7  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_P2P_WITH_AES_128_GCM_SHA512      0xC0B8  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_P2P_WITH_CAMELLIA_128_GCM_SHA256 0xC0B9  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_P2P_WITH_CAMELLIA_128_GCM_SHA512 0xC0C0  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_P2P_WITH_3DES_EDE_CBC_SHA256     0xC0C1  /**< TLS 1.2, experimental */
+#define MBEDTLS_TLS_MILAGRO_P2P_WITH_3DES_EDE_CBC_SHA512     0xC0C2  /**< TLS 1.2, experimental */
+
 /* Reminder: update mbedtls_ssl_premaster_secret when adding a new key exchange.
  * Reminder: update MBEDTLS_KEY_EXCHANGE__xxx below
  */
@@ -247,6 +261,8 @@ typedef enum {
     MBEDTLS_KEY_EXCHANGE_ECDH_RSA,
     MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA,
     MBEDTLS_KEY_EXCHANGE_ECJPAKE,
+    MBEDTLS_KEY_EXCHANGE_MILAGRO_CS,
+    MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P,
 } mbedtls_key_exchange_type_t;
 
 /* Key exchanges using a certificate */
@@ -260,6 +276,47 @@ typedef enum {
 #define MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED
 #endif
 
+/* Key exchanges allowing client certificate requests */
+#if defined(MBEDTLS_KEY_EXCHANGE_RSA_ENABLED)           ||       \
+    defined(MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED)       ||       \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED)      ||       \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED)     ||       \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED)    ||       \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED) 
+#define MBEDTLS_KEY_EXCHANGE__CERT_REQ_ALLOWED__ENABLED
+#endif
+
+/* Key exchanges involving server signature in ServerKeyExchange */
+#if defined(MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED)       || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED)     || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED)
+#define MBEDTLS_KEY_EXCHANGE__WITH_SERVER_SIGNATURE__ENABLED
+#endif
+
+/* Key exchanges using ECDH */
+#if defined(MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED)      || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED)
+#define MBEDTLS_KEY_EXCHANGE__SOME__ECDH_ENABLED
+#endif
+
+/* Key exchanges that don't involve ephemeral keys */
+#if defined(MBEDTLS_KEY_EXCHANGE_RSA_ENABLED)           || \
+    defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)           || \
+    defined(MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED)       || \
+    defined(MBEDTLS_KEY_EXCHANGE__SOME__ECDH_ENABLED)
+#define MBEDTLS_KEY_EXCHANGE__SOME_NON_PFS__ENABLED
+#endif
+
+/* Key exchanges that involve ephemeral keys */
+#if defined(MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED)       || \
+    defined(MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED)       || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED)     || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED)     || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED)   || \
+    defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
+#define MBEDTLS_KEY_EXCHANGE__SOME_PFS__ENABLED
+#endif
+
 /* Key exchanges using a PSK */
 #if defined(MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)           || \
     defined(MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED)       || \
@@ -268,7 +325,13 @@ typedef enum {
 #define MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED
 #endif
 
-/* Key exchanges using a ECDHE */
+/* Key exchanges using DHE */
+#if defined(MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED)       || \
+    defined(MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED)
+#define MBEDTLS_KEY_EXCHANGE__SOME__DHE_ENABLED
+#endif
+
+/* Key exchanges using ECDHE */
 #if defined(MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED)     || \
     defined(MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED)   || \
     defined(MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED)
@@ -309,10 +372,159 @@ const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_id( int ciphersuit
 
 #if defined(MBEDTLS_PK_C)
 mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_pk_alg( const mbedtls_ssl_ciphersuite_t *info );
+mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_alg( const mbedtls_ssl_ciphersuite_t *info );
 #endif
 
-int mbedtls_ssl_ciphersuite_uses_ec( const mbedtls_ssl_ciphersuite_t *info );
-int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info );
+#if defined(MBEDTLS_ECDH_C) || defined(MBEDTLS_ECDSA_C)
+static inline int mbedtls_ssl_ciphersuite_uses_ec( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_PSK:
+        case MBEDTLS_KEY_EXCHANGE_ECDH_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_ECDH_C || MBEDTLS_ECDSA_C */
+
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME_PFS__ENABLED)
+static inline int mbedtls_ssl_ciphersuite_has_pfs( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_DHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_DHE_PSK:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_PSK:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA:
+        case MBEDTLS_KEY_EXCHANGE_ECJPAKE:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__SOME_PFS__ENABLED */
+
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME_NON_PFS__ENABLED)
+static inline int mbedtls_ssl_ciphersuite_no_pfs( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_ECDH_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA:
+        case MBEDTLS_KEY_EXCHANGE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_PSK:
+        case MBEDTLS_KEY_EXCHANGE_RSA_PSK:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__SOME_NON_PFS__ENABLED */
+
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME__ECDH_ENABLED)
+static inline int mbedtls_ssl_ciphersuite_uses_ecdh( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_ECDH_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__SOME__ECDH_ENABLED */
+
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
+static inline int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_PSK:
+        case MBEDTLS_KEY_EXCHANGE_RSA_PSK:
+        case MBEDTLS_KEY_EXCHANGE_DHE_PSK:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_PSK:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED */
+
+static inline int mbedtls_ssl_ciphersuite_cert_req_allowed( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_DHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDH_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME__DHE_ENABLED)
+static inline int mbedtls_ssl_ciphersuite_uses_dhe( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_DHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_DHE_PSK:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__SOME__DHE_ENABLED) */
+
+#if defined(MBEDTLS_KEY_EXCHANGE__SOME__ECDHE_ENABLED)
+static inline int mbedtls_ssl_ciphersuite_uses_ecdhe( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_PSK:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__SOME__ECDHE_ENABLED) */
+
+#if defined(MBEDTLS_KEY_EXCHANGE__WITH_SERVER_SIGNATURE__ENABLED)
+static inline int mbedtls_ssl_ciphersuite_uses_server_signature( const mbedtls_ssl_ciphersuite_t *info )
+{
+    switch( info->key_exchange )
+    {
+        case MBEDTLS_KEY_EXCHANGE_DHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_RSA:
+        case MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA:
+            return( 1 );
+
+        default:
+            return( 0 );
+    }
+}
+#endif /* MBEDTLS_KEY_EXCHANGE__WITH_SERVER_SIGNATURE__ENABLED */
 
 #ifdef __cplusplus
 }

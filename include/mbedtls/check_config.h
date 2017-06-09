@@ -3,7 +3,7 @@
  *
  * \brief Consistency checks for configuration options
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2006-2016, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -77,6 +77,11 @@
 #error "MBEDTLS_DHM_C defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_CMAC_C) && \
+    !defined(MBEDTLS_AES_C) && !defined(MBEDTLS_DES_C)
+#error "MBEDTLS_CMAC_C defined, but not all prerequisites"
+#endif
+
 #if defined(MBEDTLS_ECDH_C) && !defined(MBEDTLS_ECP_C)
 #error "MBEDTLS_ECDH_C defined, but not all prerequisites"
 #endif
@@ -130,9 +135,51 @@
 #error "MBEDTLS_ENTROPY_FORCE_SHA256 defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_TEST_NULL_ENTROPY) && \
+    ( !defined(MBEDTLS_ENTROPY_C) || !defined(MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES) )
+#error "MBEDTLS_TEST_NULL_ENTROPY defined, but not all prerequisites"
+#endif
+#if defined(MBEDTLS_TEST_NULL_ENTROPY) && \
+     ( defined(MBEDTLS_ENTROPY_NV_SEED) || defined(MBEDTLS_ENTROPY_HARDWARE_ALT) || \
+    defined(MBEDTLS_HAVEGE_C) )
+#error "MBEDTLS_TEST_NULL_ENTROPY defined, but entropy sources too"
+#endif
+
 #if defined(MBEDTLS_GCM_C) && (                                        \
         !defined(MBEDTLS_AES_C) && !defined(MBEDTLS_CAMELLIA_C) )
 #error "MBEDTLS_GCM_C defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_RANDOMIZE_JAC_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_RANDOMIZE_JAC_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_ADD_MIXED_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_ADD_MIXED_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_DOUBLE_JAC_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_DOUBLE_JAC_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_NORMALIZE_JAC_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_NORMALIZE_JAC_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_RANDOMIZE_MXZ_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_RANDOMIZE_MXZ_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ECP_NORMALIZE_MXZ_ALT) && !defined(MBEDTLS_ECP_INTERNAL_ALT)
+#error "MBEDTLS_ECP_NORMALIZE_MXZ_ALT defined, but not all prerequisites"
 #endif
 
 #if defined(MBEDTLS_HAVEGE_C) && !defined(MBEDTLS_TIMING_C)
@@ -203,6 +250,26 @@
 #error "MBEDTLS_MEMORY_BUFFER_ALLOC_C defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_MILAGRO_CS_C) &&                                    \
+    !defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED)
+#error "MBEDTLS_MILAGRO_CS_C defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED) &&                  \
+    !defined(MBEDTLS_MILAGRO_CS_C)
+#error "MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_MILAGRO_P2P_C) &&                                    \
+!defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED)
+#error "MBEDTLS_MILAGRO_P2P_C defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED) &&                  \
+!defined(MBEDTLS_MILAGRO_P2P_C)
+#error "MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED defined, but not all prerequisites"
+#endif
+
 #if defined(MBEDTLS_PADLOCK_C) && !defined(MBEDTLS_HAVE_ASM)
 #error "MBEDTLS_PADLOCK_C defined, but not all prerequisites"
 #endif
@@ -244,6 +311,36 @@
     ( defined(MBEDTLS_PLATFORM_STD_EXIT) ||\
         defined(MBEDTLS_PLATFORM_EXIT_ALT) )
 #error "MBEDTLS_PLATFORM_EXIT_MACRO and MBEDTLS_PLATFORM_STD_EXIT/MBEDTLS_PLATFORM_EXIT_ALT cannot be defined simultaneously"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_TIME_ALT) &&\
+    ( !defined(MBEDTLS_PLATFORM_C) ||\
+        !defined(MBEDTLS_HAVE_TIME) )
+#error "MBEDTLS_PLATFORM_TIME_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_TIME_MACRO) &&\
+    ( !defined(MBEDTLS_PLATFORM_C) ||\
+        !defined(MBEDTLS_HAVE_TIME) )
+#error "MBEDTLS_PLATFORM_TIME_MACRO defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_TIME_TYPE_MACRO) &&\
+    ( !defined(MBEDTLS_PLATFORM_C) ||\
+        !defined(MBEDTLS_HAVE_TIME) )
+#error "MBEDTLS_PLATFORM_TIME_TYPE_MACRO defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_TIME_MACRO) &&\
+    ( defined(MBEDTLS_PLATFORM_STD_TIME) ||\
+        defined(MBEDTLS_PLATFORM_TIME_ALT) )
+#error "MBEDTLS_PLATFORM_TIME_MACRO and MBEDTLS_PLATFORM_STD_TIME/MBEDTLS_PLATFORM_TIME_ALT cannot be defined simultaneously"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_TIME_TYPE_MACRO) &&\
+    ( defined(MBEDTLS_PLATFORM_STD_TIME) ||\
+        defined(MBEDTLS_PLATFORM_TIME_ALT) )
+#error "MBEDTLS_PLATFORM_TIME_TYPE_MACRO and MBEDTLS_PLATFORM_STD_TIME/MBEDTLS_PLATFORM_TIME_ALT cannot be defined simultaneously"
 #endif
 
 #if defined(MBEDTLS_PLATFORM_FPRINTF_ALT) && !defined(MBEDTLS_PLATFORM_C)
@@ -342,6 +439,12 @@
 #error "MBEDTLS_PLATFORM_STD_EXIT defined, but not all prerequisites"
 #endif
 
+#if defined(MBEDTLS_PLATFORM_STD_TIME) &&\
+    ( !defined(MBEDTLS_PLATFORM_TIME_ALT) ||\
+        !defined(MBEDTLS_HAVE_TIME) )
+#error "MBEDTLS_PLATFORM_STD_TIME defined, but not all prerequisites"
+#endif
+
 #if defined(MBEDTLS_PLATFORM_STD_FPRINTF) &&\
     !defined(MBEDTLS_PLATFORM_FPRINTF_ALT)
 #error "MBEDTLS_PLATFORM_STD_FPRINTF defined, but not all prerequisites"
@@ -355,6 +458,38 @@
 #if defined(MBEDTLS_PLATFORM_STD_SNPRINTF) &&\
     !defined(MBEDTLS_PLATFORM_SNPRINTF_ALT)
 #error "MBEDTLS_PLATFORM_STD_SNPRINTF defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_ENTROPY_NV_SEED) &&\
+    ( !defined(MBEDTLS_PLATFORM_C) || !defined(MBEDTLS_ENTROPY_C) )
+#error "MBEDTLS_ENTROPY_NV_SEED defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_NV_SEED_ALT) &&\
+    !defined(MBEDTLS_ENTROPY_NV_SEED)
+#error "MBEDTLS_PLATFORM_NV_SEED_ALT defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_STD_NV_SEED_READ) &&\
+    !defined(MBEDTLS_PLATFORM_NV_SEED_ALT)
+#error "MBEDTLS_PLATFORM_STD_NV_SEED_READ defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_STD_NV_SEED_WRITE) &&\
+    !defined(MBEDTLS_PLATFORM_NV_SEED_ALT)
+#error "MBEDTLS_PLATFORM_STD_NV_SEED_WRITE defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_NV_SEED_READ_MACRO) &&\
+    ( defined(MBEDTLS_PLATFORM_STD_NV_SEED_READ) ||\
+      defined(MBEDTLS_PLATFORM_NV_SEED_ALT) )
+#error "MBEDTLS_PLATFORM_NV_SEED_READ_MACRO and MBEDTLS_PLATFORM_STD_NV_SEED_READ cannot be defined simultaneously"
+#endif
+
+#if defined(MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO) &&\
+    ( defined(MBEDTLS_PLATFORM_STD_NV_SEED_WRITE) ||\
+      defined(MBEDTLS_PLATFORM_NV_SEED_ALT) )
+#error "MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO and MBEDTLS_PLATFORM_STD_NV_SEED_WRITE cannot be defined simultaneously"
 #endif
 
 #if defined(MBEDTLS_RSA_C) && ( !defined(MBEDTLS_BIGNUM_C) ||         \
