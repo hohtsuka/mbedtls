@@ -21,7 +21,7 @@ If not, then you can download it from www.cmake.org
 - git checkout develop
 - mkdir release
 - cd release
-- cmake -D CMAKE_INSTALL_PREFIX=/opt/amcl -D USE_ANONYMOUS=on -D WORD_LENGTH=64 -D BUILD_WCC=on  -D BUILD_MPIN=on  ..
+- cmake -D CMAKE_INSTALL_PREFIX=/opt/amcl -D USE_ANONYMOUS=on -D BUILD_WCC=on  -D BUILD_MPIN=on  ..
 - make
 - make test
 - sudo make install

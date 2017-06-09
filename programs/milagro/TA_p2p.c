@@ -31,12 +31,13 @@
 
 #define C99
 #include "wcc.h"
+#include "randapi.h"
 
-#define mbedtls_milagro_p2p_create_csprng WCC_CREATE_CSPRNG
+#define mbedtls_milagro_p2p_create_csprng CREATE_CSPRNG
 #define mbedtls_milagro_p2p_random_generate WCC_RANDOM_GENERATE
 #define mbedtls_milagro_p2p_get_g1_multiple WCC_GET_G1_MULTIPLE
 #define mbedtls_milagro_p2p_get_g2_multiple WCC_GET_G2_MULTIPLE
-#define mbedtls_milagro_p2p_kill_csprng WCC_KILL_CSPRNG
+#define mbedtls_milagro_p2p_kill_csprng KILL_CSPRNG
 #define mbedtls_milagro_p2p_hash_id WCC_HASH_ID
 #define mbedtls_milagro_p2p_hash_type_wcc HASH_TYPE_WCC
 

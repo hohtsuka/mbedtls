@@ -44,6 +44,7 @@
 #include "mpin.h"
 #include "utils.h"
 #include "wcc.h"
+#include "randapi.h"
 
 #include "mbedtls/entropy.h"
 
@@ -59,13 +60,13 @@
  */
 
 #define mbedtls_milagro_cs_today MPIN_today 
-#define mbedtls_milagro_cs_create_csprng MPIN_CREATE_CSPRNG
+#define mbedtls_milagro_cs_create_csprng CREATE_CSPRNG
 #define mbedtls_milagro_cs_hash_id MPIN_HASH_ID
 #define mbedtls_milagro_cs_get_time MPIN_GET_TIME
 #define mbedtls_milagro_cs_client MPIN_CLIENT
 #define mbedtls_milagro_cs_server MPIN_SERVER
 #define mbedtls_milagro_cs_get_g1_multiple MPIN_GET_G1_MULTIPLE
-#define mbedtls_milagro_cs_kill_csprng MPIN_KILL_CSPRNG
+#define mbedtls_milagro_cs_kill_csprng KILL_CSPRNG
 #define mbedtls_milagro_cs_hash_all MPIN_HASH_ALL
 #define mbedtls_milagro_cs_server_key MPIN_SERVER_KEY
 #define mbedtls_milagro_cs_precompute MPIN_PRECOMPUTE
@@ -73,11 +74,11 @@
 #define mbedtls_milagro_cs_hash_type_mpin HASH_TYPE_MPIN
 
 
-#define mbedtls_milagro_p2p_create_csprng WCC_CREATE_CSPRNG
+#define mbedtls_milagro_p2p_create_csprng CREATE_CSPRNG
 #define mbedtls_milagro_p2p_random_generate WCC_RANDOM_GENERATE
 #define mbedtls_milagro_p2p_get_g1_multiple WCC_GET_G1_MULTIPLE
 #define mbedtls_milagro_p2p_get_g2_multiple WCC_GET_G2_MULTIPLE
-#define mbedtls_milagro_p2p_kill_csprng WCC_KILL_CSPRNG
+#define mbedtls_milagro_p2p_kill_csprng KILL_CSPRNG
 #define mbedtls_milagro_p2p_hq WCC_Hq
 #define mbedtls_milagro_p2p_sender_key WCC_SENDER_KEY
 #define mbedtls_milagro_p2p_receiver_key WCC_RECEIVER_KEY

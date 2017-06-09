@@ -229,11 +229,11 @@ int mbedtls_milagro_cs_read_client_parameters(mbedtls_milagro_cs_context *milagr
 int mbedtls_milagro_cs_authenticate_client(mbedtls_milagro_cs_context *milagro_cs)
 {
     int ret = 0;
-    if ( mbedtls_milagro_cs_server(mbedtls_milagro_cs_hash_type_mpin,
+    if ( (ret = mbedtls_milagro_cs_server(mbedtls_milagro_cs_hash_type_mpin,
                                    milagro_cs->date,&milagro_cs->HID,NULL,
                                    &milagro_cs->Y,&milagro_cs->secret,&milagro_cs->U,
                                    NULL,&milagro_cs->V,NULL,NULL,&milagro_cs->hash_client_id,
-                                   NULL,milagro_cs->timevalue) != 0)
+                                   NULL,milagro_cs->timevalue)) != 0)
     {
         ret = MBEDTLS_ERR_MILAGRO_CS_AUTHENTICATION_FAILED;
     }

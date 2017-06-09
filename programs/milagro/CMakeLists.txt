@@ -3,9 +3,11 @@ find_package(Threads)
 
 set(libs
     mbedtls
-    amcl
-    mpin
-    wcc
+    amcl_core
+    amcl_pairing
+    amcl_curve
+    amcl_mpin
+    amcl_wcc
 )
 
 set(targets
