@@ -120,14 +120,12 @@ int dev_random_entropy_poll( void *data, unsigned char *output,
     USAGE_DEV_RANDOM                                    \
     "\n"
 
-#if !defined(MBEDTLS_PK_WRITE_C) || !defined(MBEDTLS_PEM_WRITE_C) || \
-    !defined(MBEDTLS_FS_IO) || !defined(MBEDTLS_ENTROPY_C) || \
-    !defined(MBEDTLS_CTR_DRBG_C)
+#if !defined(MBEDTLS_PK_WRITE_C) || !defined(MBEDTLS_FS_IO) ||    \
+    !defined(MBEDTLS_ENTROPY_C) || !defined(MBEDTLS_CTR_DRBG_C)
 int main( void )
 {
     mbedtls_printf( "MBEDTLS_PK_WRITE_C and/or MBEDTLS_FS_IO and/or "
-            "MBEDTLS_ENTROPY_C and/or MBEDTLS_CTR_DRBG_C and/or "
-            "MBEDTLS_PEM_WRITE_C"
+            "MBEDTLS_ENTROPY_C and/or MBEDTLS_CTR_DRBG_C "
             "not defined.\n" );
     return( 0 );
 }
@@ -420,6 +418,4 @@ exit:
 
     return( ret );
 }
-#endif /* MBEDTLS_PK_WRITE_C && MBEDTLS_PEM_WRITE_C && MBEDTLS_FS_IO &&
-        * MBEDTLS_ENTROPY_C && MBEDTLS_CTR_DRBG_C */
-
+#endif /* MBEDTLS_PK_WRITE_C && MBEDTLS_FS_IO */

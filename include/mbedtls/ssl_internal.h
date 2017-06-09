@@ -45,11 +45,6 @@
 #include "ecjpake.h"
 #endif
 
-#if defined(MBEDTLS_MILAGRO_CS_C) || \
-defined(MBEDTLS_MILAGRO_P2P_C)
-#include "milagro.h"
-#endif
-
 #if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
     !defined(inline) && !defined(__cplusplus)
 #define inline __inline
@@ -157,29 +152,10 @@ defined(MBEDTLS_MILAGRO_P2P_C)
  */
 #define MBEDTLS_TLS_EXT_SUPPORTED_POINT_FORMATS_PRESENT (1 << 0)
 #define MBEDTLS_TLS_EXT_ECJPAKE_KKPP_OK                 (1 << 1)
-#define MBEDTLS_TLS_EXT_MILAGRO_CS_OK                   (1 << 2)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#if defined(MBEDTLS_SSL_PROTO_TLS1_2) && \
-    defined(MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED)
-/*
- * Abstraction for a grid of allowed signature-hash-algorithm pairs.
- */
-struct mbedtls_ssl_sig_hash_set_t
-{
-    /* At the moment, we only need to remember a single suitable
-     * hash algorithm per signature algorithm. As long as that's
-     * the case - and we don't need a general lookup function -
-     * we can implement the sig-hash-set as a map from signatures
-     * to hash algorithms. */
-    mbedtls_md_type_t rsa;
-    mbedtls_md_type_t ecdsa;
-};
-#endif /* MBEDTLS_SSL_PROTO_TLS1_2 &&
-          MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED */
 
 /*
  * This structure contains the parameters only needed during handshake.
@@ -189,11 +165,8 @@ struct mbedtls_ssl_handshake_params
     /*
      * Handshake specific crypto variables
      */
-
-#if defined(MBEDTLS_SSL_PROTO_TLS1_2) && \
-    defined(MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED)
-    mbedtls_ssl_sig_hash_set_t hash_algs;             /*!<  Set of suitable sig-hash pairs */
-#endif
+    int sig_alg;                        /*!<  Hash algorithm for signature   */
+    int verify_sig_alg;                 /*!<  Signature algorithm for verify */
 #if defined(MBEDTLS_DHM_C)
     mbedtls_dhm_context dhm_ctx;                /*!<  DHM key exchange        */
 #endif
@@ -206,7 +179,7 @@ struct mbedtls_ssl_handshake_params
     unsigned char *ecjpake_cache;               /*!< Cache for ClientHello ext */
     size_t ecjpake_cache_len;                   /*!< Length of cached data */
 #endif
-#endif /* MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED */
+#endif
 #if defined(MBEDTLS_ECDH_C) || defined(MBEDTLS_ECDSA_C) || \
     defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
     const mbedtls_ecp_curve_info **curves;      /*!<  Supported elliptic curves */
@@ -222,7 +195,7 @@ struct mbedtls_ssl_handshake_params
     mbedtls_ssl_key_cert *sni_key_cert; /*!< key/cert list from SNI         */
     mbedtls_x509_crt *sni_ca_chain;     /*!< trusted CAs from SNI callback  */
     mbedtls_x509_crl *sni_ca_crl;       /*!< trusted CAs CRLs from SNI      */
-#endif /* MBEDTLS_SSL_SERVER_NAME_INDICATION */
+#endif
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
     unsigned int out_msg_seq;           /*!<  Outgoing handshake sequence number */
@@ -245,7 +218,7 @@ struct mbedtls_ssl_handshake_params
                                               resending messages             */
     unsigned char alt_out_ctr[8];       /*!<  Alternative record epoch/counter
                                               for resending messages         */
-#endif /* MBEDTLS_SSL_PROTO_DTLS */
+#endif
 
     /*
      * Checksum contexts
@@ -288,12 +261,6 @@ struct mbedtls_ssl_handshake_params
 #if defined(MBEDTLS_SSL_EXTENDED_MASTER_SECRET)
     int extended_ms;                    /*!< use Extended Master Secret? */
 #endif
-#if defined(MBEDTLS_MILAGRO_CS_C)
-    mbedtls_milagro_cs_context *milagro_cs;
-#endif /* MBEDTLS_MILAGRO_CS_C */
-#if defined(MBEDTLS_MILAGRO_P2P_C)
-    mbedtls_milagro_p2p_context *milagro_p2p;
-#endif /* MBEDTLS_MILAGRO_P2P_C */
 };
 
 /*
@@ -362,28 +329,6 @@ struct mbedtls_ssl_flight_item
 };
 #endif /* MBEDTLS_SSL_PROTO_DTLS */
 
-#if defined(MBEDTLS_SSL_PROTO_TLS1_2) && \
-    defined(MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED)
-
-/* Find an entry in a signature-hash set matching a given hash algorithm. */
-mbedtls_md_type_t mbedtls_ssl_sig_hash_set_find( mbedtls_ssl_sig_hash_set_t *set,
-                                                 mbedtls_pk_type_t sig_alg );
-/* Add a signature-hash-pair to a signature-hash set */
-void mbedtls_ssl_sig_hash_set_add( mbedtls_ssl_sig_hash_set_t *set,
-                                   mbedtls_pk_type_t sig_alg,
-                                   mbedtls_md_type_t md_alg );
-/* Allow exactly one hash algorithm for each signature. */
-void mbedtls_ssl_sig_hash_set_const_hash( mbedtls_ssl_sig_hash_set_t *set,
-                                          mbedtls_md_type_t md_alg );
-
-/* Setup an empty signature-hash set */
-static inline void mbedtls_ssl_sig_hash_set_init( mbedtls_ssl_sig_hash_set_t *set )
-{
-    mbedtls_ssl_sig_hash_set_const_hash( set, MBEDTLS_MD_NONE );
-}
-
-#endif /* MBEDTLS_SSL_PROTO_TLS1_2) &&
-          MBEDTLS_KEY_EXCHANGE__WITH_CERT__ENABLED */
 
 /**
  * \brief           Free referenced items in an SSL transform context and clear
@@ -410,11 +355,6 @@ int mbedtls_ssl_send_fatal_handshake_failure( mbedtls_ssl_context *ssl );
 void mbedtls_ssl_reset_checksum( mbedtls_ssl_context *ssl );
 int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl );
 
-int mbedtls_ssl_read_record_layer( mbedtls_ssl_context *ssl );
-int mbedtls_ssl_handle_message_type( mbedtls_ssl_context *ssl );
-int mbedtls_ssl_prepare_handshake_record( mbedtls_ssl_context *ssl );
-void mbedtls_ssl_update_handshake_status( mbedtls_ssl_context *ssl );
-
 int mbedtls_ssl_read_record( mbedtls_ssl_context *ssl );
 int mbedtls_ssl_fetch_input( mbedtls_ssl_context *ssl, size_t nb_want );
 
@@ -433,31 +373,17 @@ int mbedtls_ssl_write_finished( mbedtls_ssl_context *ssl );
 void mbedtls_ssl_optimize_checksum( mbedtls_ssl_context *ssl,
                             const mbedtls_ssl_ciphersuite_t *ciphersuite_info );
 
-#if defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_CS_ENABLED)
-    int mbedtls_milagro_cs_derive_premaster(int client_or_server,
-                                                mbedtls_ssl_context *ssl,
-                                                mbedtls_key_exchange_type_t key_ex );
-#endif
-    
-#if defined(MBEDTLS_KEY_EXCHANGE_MILAGRO_P2P_ENABLED)
-    int mbedtls_milagro_p2p_derive_premaster(int client_or_server,
-                                                 mbedtls_ssl_context *ssl,
-                                                 mbedtls_key_exchange_type_t key_ex );
-#endif
-
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
 int mbedtls_ssl_psk_derive_premaster( mbedtls_ssl_context *ssl, mbedtls_key_exchange_type_t key_ex );
 #endif
 
 #if defined(MBEDTLS_PK_C)
 unsigned char mbedtls_ssl_sig_from_pk( mbedtls_pk_context *pk );
-unsigned char mbedtls_ssl_sig_from_pk_alg( mbedtls_pk_type_t type );
 mbedtls_pk_type_t mbedtls_ssl_pk_alg_from_sig( unsigned char sig );
 #endif
 
 mbedtls_md_type_t mbedtls_ssl_md_alg_from_hash( unsigned char hash );
 unsigned char mbedtls_ssl_hash_from_md_alg( int md );
-int mbedtls_ssl_set_calc_verify_md( mbedtls_ssl_context *ssl, int md );
 
 #if defined(MBEDTLS_ECP_C)
 int mbedtls_ssl_check_curve( const mbedtls_ssl_context *ssl, mbedtls_ecp_group_id grp_id );

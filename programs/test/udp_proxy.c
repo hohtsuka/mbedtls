@@ -50,7 +50,7 @@ int main( void )
 }
 #else
 
-#include "mbedtls/net_sockets.h"
+#include "mbedtls/net.h"
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
 
